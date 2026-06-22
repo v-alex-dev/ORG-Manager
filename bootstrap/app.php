@@ -27,4 +27,26 @@ return Application::configure(basePath: dirname(__DIR__))
                 'message' => 'Resource not found.',
             ], 404);
         });
+
+        // 405 - HTTP method not allowed
+        $exceptions->render(function (MethodNotAllowedHttpException $e, Request $request) {
+            return response()->json([
+                'message' => 'Method not allowed.',
+            ], 405);
+        });
+
+        // 401 - Unauthenticated (token missing or invalid)
+        $exceptions->render(function (AuthenticationException $e, Request $request) {
+            return response()->json([
+                'message' => 'Unauthenticated. Please provide a valid token.',
+            ], 401);
+        });
+
+        // 422 - Validation errors
+        $exceptions->render(function (ValidationException $e, Request $request) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors'  => $e->errors(),
+            ], 422);
+        });
     })->create();
