@@ -94,4 +94,13 @@ class ServiceTest extends TestCase
             ->assertJsonStructure(['message', 'errors' => ['name']]);
     }
 
+    public function test_unauthenticated_user_cannot_create_service(): void
+    {
+        $response = $this->postJson('/api/services', [
+            'name' => 'Informatique',
+        ]);
+
+        $response->assertStatus(401);
+    }
+
 }
