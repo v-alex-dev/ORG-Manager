@@ -79,4 +79,20 @@ class AuthTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    // -------------------------------------------------------------------------
+    // GET /api/user
+    // -------------------------------------------------------------------------
+
+    public function test_authenticated_user_can_fetch_their_profile(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/user');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('user.id', $user->id)
+            ->assertJsonPath('user.email', $user->email);
+    }
 }
