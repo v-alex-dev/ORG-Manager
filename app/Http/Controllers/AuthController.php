@@ -40,4 +40,15 @@ class AuthController extends Controller
             'message' => 'Logged out successfully.'
         ]);
     }
+
+    public function user(Request $request): JsonResponse
+    {
+        return response()->json([
+            'user'=>[
+                'id'=> $request->user()->id,
+                'name'=> $request->user()->name,
+                'email'=> $request->user()->email,
+            ]
+        ]);
+    }
 }
