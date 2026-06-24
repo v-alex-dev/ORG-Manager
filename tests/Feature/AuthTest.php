@@ -47,5 +47,14 @@ class AuthTest extends TestCase
             ->assertJsonPath('errors.email.0', 'The provided credentials are incorrect.');
     }
 
+    public function test_login_fails_with_missing_fields(): void
+    {
+        $response = $this->postJson('/api/login', []);
 
+        $response->assertStatus(422)
+            ->assertJsonStructure([
+                'message',
+                'errors' => ['email', 'password'],
+            ]);
+    }
 }
