@@ -32,5 +32,20 @@ class AuthTest extends TestCase
             ]);
     }
 
+    public function test_login_fails_with_wrong_password(): void
+    {
+        $user = User::factory()->create([
+            'password' => bcrypt('secret123'),
+        ]);
+
+        $response = $this->postJson('/api/login', [
+            'email'    => $user->email,
+            'password' => 'wrongpassword',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('errors.email.0', 'The provided credentials are incorrect.');
+    }
+
 
 }
