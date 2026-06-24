@@ -16,8 +16,6 @@ return new class extends Migration
             $table->foreignId('service_id')
                 ->constrained('org_instances')
                 ->cascadeOnDelete();
-            $table->foreignId('service_id')
-                ->constrained('services');
             $table->string('poj_title');
             $table->text('poj_description')->nullable();
             $table->enum('status', ['TODO','DONE'])->default('DONE');
