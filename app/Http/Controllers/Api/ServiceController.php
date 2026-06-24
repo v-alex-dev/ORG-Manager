@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Middleware\ForceJsonResponse;
 use App\Models\Service;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ServiceController extends Controller
 {
-    public function index(): ForceJsonResponse
+    public function index() : JsonResponse
     {
         $services = Service::orderBy('name')->get();
         return response()->json([
@@ -17,7 +17,7 @@ class ServiceController extends Controller
         ]);
     }
 
-    public function store(Request $request): ForceJsonResponse
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:services,name'],
