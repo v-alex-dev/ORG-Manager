@@ -37,4 +37,15 @@ class ServiceTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    public function test_returns_empty_list_when_no_services_exist(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/services');
+
+        $response->assertStatus(200)
+            ->assertJsonCount(0, 'data');
+    }
 }
