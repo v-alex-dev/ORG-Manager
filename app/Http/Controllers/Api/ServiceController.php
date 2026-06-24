@@ -16,4 +16,21 @@ class ServiceController extends Controller
             'data' => $services,
         ]);
     }
+
+    public function store(Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:services,name'],
+        ]);
+
+        $service = Service::create([
+            'name' => $request->name,
+        ]);
+
+        return response()->json([
+            'data' => $service,
+        ], 201);
+    }
+
+
 }
