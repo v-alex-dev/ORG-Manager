@@ -83,4 +83,15 @@ class ServiceTest extends TestCase
             ->assertJsonStructure(['message', 'errors' => ['name']]);
     }
 
+    public function test_cannot_create_service_with_missing_name(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/services', []);
+
+        $response->assertStatus(422)
+            ->assertJsonStructure(['message', 'errors' => ['name']]);
+    }
+
 }
