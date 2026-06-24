@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
+    /**
+     * Authenticate the user and return a Sanctum token.
+     *
+     * POST /api/login
+     */
     public function login(Request $request): JsonResponse
     {
         $request->validate([
@@ -33,6 +38,11 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Revoke the current user's token.
+     *
+     * POST /api/logout
+     */
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
@@ -41,6 +51,11 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Return the authenticated user.
+     *
+     * GET /api/user
+     */
     public function user(Request $request): JsonResponse
     {
         return response()->json([
