@@ -48,4 +48,23 @@ class ServiceTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonCount(0, 'data');
     }
+
+    // -------------------------------------------------------------------------
+    // POST /api/services
+    // -------------------------------------------------------------------------
+
+    public function test_authenticated_user_can_create_a_service(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/services', [
+                'name' => 'Informatique',
+            ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.name', 'Informatique');
+
+        $this->assertDatabaseHas('services', ['name' => 'Informatique']);
+    }
 }
