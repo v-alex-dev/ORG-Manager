@@ -95,4 +95,11 @@ class AuthTest extends TestCase
             ->assertJsonPath('user.id', $user->id)
             ->assertJsonPath('user.email', $user->email);
     }
+
+    public function test_unauthenticated_user_cannot_fetch_profile(): void
+    {
+        $response = $this->getJson('/api/user');
+
+        $response->assertStatus(401);
+    }
 }
