@@ -57,4 +57,20 @@ class AuthTest extends TestCase
                 'errors' => ['email', 'password'],
             ]);
     }
+
+    // -------------------------------------------------------------------------
+    // POST /api/logout
+    // -------------------------------------------------------------------------
+
+    public function test_user_can_logout(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/logout');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('message', 'Logged out successfully.');
+    }
+
 }
