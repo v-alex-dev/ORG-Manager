@@ -30,4 +30,11 @@ class ServiceTest extends TestCase
             ->assertJsonPath('data.0.name', 'Logistique')
             ->assertJsonPath('data.1.name', 'Ressources Humaines');
     }
+
+    public function test_unauthenticated_user_cannot_list_services(): void
+    {
+        $response = $this->getJson('/api/services');
+
+        $response->assertStatus(401);
+    }
 }
