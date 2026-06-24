@@ -73,4 +73,10 @@ class AuthTest extends TestCase
             ->assertJsonPath('message', 'Logged out successfully.');
     }
 
+    public function test_logout_requires_authentication(): void
+    {
+        $response = $this->postJson('/api/logout');
+
+        $response->assertStatus(401);
+    }
 }
