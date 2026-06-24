@@ -67,4 +67,20 @@ class ServiceTest extends TestCase
 
         $this->assertDatabaseHas('services', ['name' => 'Informatique']);
     }
+
+    public function test_cannot_create_service_with_duplicate_name(): void
+    {
+        $user = User::factory()->create();
+
+        Service::create(['name' => 'Informatique']);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/services', [
+                'name' => 'Informatique',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonStructure(['message', 'errors' => ['name']]);
+    }
+
 }
