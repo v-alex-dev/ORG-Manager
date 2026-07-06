@@ -2,19 +2,21 @@
 
 namespace Tests\Feature;
 
+use App\Services\RefereneCodeService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class ReferenceCodeServiceTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     */
-    public function test_example(): void
-    {
-        $response = $this->get('/');
+    use RefreshDatabase;
 
-        $response->assertStatus(200);
+    private ReferenceCodeService  $service;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->serivce = new RefereneCodeService();
     }
+
 }
