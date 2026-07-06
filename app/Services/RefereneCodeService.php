@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Models\Task;
 use App\Models\User;
 
 class RefereneCodeService
@@ -17,6 +18,18 @@ class RefereneCodeService
 
     public function generate(string $orgType, int $year):string
     {
-        return 'cou';
+        $prefix = "{$orgType}-{$year}";
+
+        $last = where('reference_code', 'like', "{$prefix}%")
+            ->max('reference_code');
+
+        $nextNumber = 1;
+
+        if($last){
+            $lastNumber = (int) substr($last, strlen($prefix));
+            $nextNumber = $lastNumber + 1;
+        }
+
+        return $prefix . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
     }
 }
