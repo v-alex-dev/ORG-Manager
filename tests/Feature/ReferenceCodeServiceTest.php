@@ -68,4 +68,17 @@ class ReferenceCodeServiceTest extends TestCase
         $this->assertSame('CFG-2026-004', $ref);
     }
 
+    public function test_pads_number_with_leading_zeros(): void
+    {
+        for ($i = 1; $i <= 9; $i++) {
+            Task::factory()->create([
+                'reference_code' => 'CFG-2026-' . str_pad($i, 3, '0', STR_PAD_LEFT),
+            ]);
+        }
+
+        $ref = $this->service->generate('CFG', 2026);
+
+        $this->assertSame('CFG-2026-010', $ref);
+    }
+
 }
