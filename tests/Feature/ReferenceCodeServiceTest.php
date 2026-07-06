@@ -26,5 +26,16 @@ class ReferenceCodeServiceTest extends TestCase
         $this->assertSame('CFG-2026-001', $ref);
     }
 
+    public function test_increment_from_last_existing_reference(): void
+    {
+        Task::factory()->create(['reference_code' => 'CFG-2026-001']);
+        Task::factory()->create(['reference_code' => 'CFG-2026-002']);
+
+        $ref = $this->service->generate('CFG', 2026);
+
+        $this->assertSame('CFG-2026-002', $ref);
+    }
+
+
 
 }
