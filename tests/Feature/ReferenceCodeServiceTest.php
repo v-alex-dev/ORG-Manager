@@ -55,4 +55,17 @@ class ReferenceCodeServiceTest extends TestCase
         $this->assertSame('CFG-2026-001', $ref);
     }
 
+    public function test_generates_correctly_after_deletion(): void
+    {
+        Task::factory()->create(['reference_code' => 'CFG-2026-001']);
+        Task::factory()->create(['reference_code' => 'CFG-2026-002']);
+        Task::factory()->create(['reference_code' => 'CFG-2026-003']);
+
+        Task::where('reference_code', 'CFG-2026-002')->delete();
+
+        $ref = $this->service->generate('CFG', 2026);
+
+        $this->assertSame('CFG-2026-004', $ref);
+    }
+
 }
