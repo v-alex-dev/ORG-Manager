@@ -36,6 +36,14 @@ class ReferenceCodeServiceTest extends TestCase
         $this->assertSame('CFG-2026-002', $ref);
     }
 
+    public function test_does_not_conflict_between_org_types(): void
+    {
+        Task::factory()->create(['reference_code' => 'CFG-2026-001']);
 
+        $ref = $this->service->generate('COMITE', 2026);
+
+        $this->assertSame('COMITE-2026-001', $ref);
+
+    }
 
 }
