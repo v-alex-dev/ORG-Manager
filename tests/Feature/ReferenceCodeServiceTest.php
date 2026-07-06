@@ -19,4 +19,12 @@ class ReferenceCodeServiceTest extends TestCase
         $this->serivce = new RefereneCodeService();
     }
 
+    public function test_increment_from_last_existing_when_no_tasks_exist():void
+    {
+        $ref = $this->service->generate('CFG', 2026);
+
+        $this->assertSame('CFG-2026-001', $ref);
+    }
+
+
 }
