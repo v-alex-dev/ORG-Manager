@@ -13,12 +13,15 @@ return new class extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('service_id')
+            $table->foreignId('organization_id')
                 ->constrained('org_instances')
+                ->cascadeOnDelete();
+            $table->foreignId('service_id')
+                ->constrained('services')
                 ->cascadeOnDelete();
             $table->string('poj_title');
             $table->text('poj_description')->nullable();
-            $table->enum('status', ['TODO','DONE'])->default('DONE');
+            $table->enum('status', ['TODO','DONE'])->default('TODO');
             $table->string('reference_code',20)->unique()->index();
             $table->timestamps();
         });
