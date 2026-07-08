@@ -29,6 +29,14 @@ class OrgInstanceFactory extends Factory
         return $this->state(['is_archived' => true]);
     }
 
+    public function cfg(): static
+    {
+        return $this->state(['type' => 'CFG']);
+    }
 
+    public function comite(): static
+    {
+        return $this->state(['type' => 'COMITE']);
+    }
 
 }
