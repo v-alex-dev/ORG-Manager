@@ -20,7 +20,7 @@ class RefereneCodeService
     {
         $prefix = "{$orgType}-{$year}";
 
-        $last = where('reference_code', 'like', "{$prefix}%")
+        $last = Task::where('reference_code', 'like', "{$prefix}%")
             ->max('reference_code');
 
         $nextNumber = 1;
