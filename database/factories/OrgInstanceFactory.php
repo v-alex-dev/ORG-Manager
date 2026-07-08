@@ -24,6 +24,11 @@ class OrgInstanceFactory extends Factory
             'is_archived' => false
         ];
     }
+    public function archived(): static
+    {
+        return $this->state(['is_archived' => true]);
+    }
+
 
 
 }
