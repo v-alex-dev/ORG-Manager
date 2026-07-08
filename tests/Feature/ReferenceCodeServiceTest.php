@@ -11,7 +11,7 @@ class ReferenceCodeServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    private ReferenceCodeService  $service;
+    private RefereneCodeService  $service;
 
     protected function setUp(): void
     {
@@ -33,7 +33,7 @@ class ReferenceCodeServiceTest extends TestCase
 
         $ref = $this->service->generate('CFG', 2026);
 
-        $this->assertSame('CFG-2026-002', $ref);
+        $this->assertSame('CFG-2026-003', $ref);
     }
 
     public function test_does_not_conflict_between_org_types(): void
