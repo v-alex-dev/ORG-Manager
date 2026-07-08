@@ -16,7 +16,7 @@ class ReferenceCodeServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->serivce = new RefereneCodeService();
+        $this->service = new RefereneCodeService();
     }
 
     public function test_increment_from_last_existing_when_no_tasks_exist():void
