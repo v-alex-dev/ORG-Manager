@@ -69,4 +69,22 @@ class OrgInstanceTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonStructure(['message', 'errors' => ['type']]);
     }
+
+    public function test_type_must_be_valid_for_active_orgs():void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/orgs/active?type=INVALID');
+
+        $response->assertStatus(422)
+            ->assertJsonStructure(['message', 'errors' => ['type']]);
+    }
+
+    public function test_unauthenticated_user_cannot_list_active_orgs(): void
+    {
+        $response = $this->getJson('/api/orgs/active?type=CFG');
+
+        $response->assertStatus(401);
+    }
 }
