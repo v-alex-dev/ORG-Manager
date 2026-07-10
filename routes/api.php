@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\OrgInstanceController;
 use App\Http\Controllers\Api\ServiceController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,4 +24,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Services
     Route::get('/services',  [ServiceController::class, 'index']);
     Route::post('/services', [ServiceController::class, 'store']);
+
+    // ORG instance
+    Route::get('/orgs/active', [OrgInstanceController::class, 'active']);
+    Route::post('/orgs', [OrgInstanceController::class, 'store']);
+    Route::put('/orgs/{id}/archive', [OrgInstanceController::class, 'archive']);
 });
