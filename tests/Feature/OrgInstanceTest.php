@@ -36,5 +36,14 @@ class OrgInstanceTest extends TestCase
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/api/orgs/active?type=CFG');
+
+        $response->assertStatus(200)
+            ->assertJsonCount(1,'data')
+            ->assertJsonPath('data.0.type', 'CFG');
+    }
+
+    public function test_active_orgs_are_ordered_by_date_ascending():void
+    {
+
     }
 }
