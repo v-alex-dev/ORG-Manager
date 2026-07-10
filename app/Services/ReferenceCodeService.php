@@ -4,7 +4,7 @@ namespace App\Services;
 use App\Models\Task;
 use App\Models\User;
 
-class RefereneCodeService
+class ReferenceCodeService
 {
     /**
      * Generate the next unique reference code for a task.
@@ -18,7 +18,7 @@ class RefereneCodeService
 
     public function generate(string $orgType, int $year):string
     {
-        $prefix = "{$orgType}-{$year}";
+        $prefix = "{$orgType}-{$year}-";
 
         $last = Task::where('reference_code', 'like', "{$prefix}%")
             ->max('reference_code');

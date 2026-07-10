@@ -2,21 +2,22 @@
 
 namespace Tests\Feature;
 
-use App\Services\RefereneCodeService;
+use App\Services\ReferenceCodeService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Models\Task;
 
 class ReferenceCodeServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    private RefereneCodeService  $service;
+    private ReferenceCodeService  $service;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new RefereneCodeService();
+        $this->service = new ReferenceCodeService();
     }
 
     public function test_increment_from_last_existing_when_no_tasks_exist():void
