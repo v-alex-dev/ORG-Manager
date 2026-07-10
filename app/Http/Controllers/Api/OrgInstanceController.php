@@ -32,5 +32,19 @@ class OrgInstanceController extends Controller
         ]);
     }
 
+    /**
+     * Create a new ORG instance.
+     *
+     * POST /api/orgs
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'type' => ['required', Rule::in(['CFG', 'COMITE'])],
+            'recurrence_type' => ['required', Rule::in(['HEBDO', 'OCCASIONNEL'])],
+            'date_meeting' => ['required', 'date'],
+        ]);
 
+
+    }
 }
