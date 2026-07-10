@@ -139,4 +139,9 @@ class OrgInstanceTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonStructure(['message', 'errors' => ['type']]);
     }
+
+    public function test_unauthenticated_user_cannot_create_org(): void
+    {
+
+    }
 }
