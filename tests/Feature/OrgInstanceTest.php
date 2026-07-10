@@ -142,6 +142,11 @@ class OrgInstanceTest extends TestCase
 
     public function test_unauthenticated_user_cannot_create_org(): void
     {
+        $response = $this->postJson('/api/orgs', [
+            'type'            => 'CFG',
+            'recurrence_type' => 'HEBDO',
+            'date_meeting'    => '2026-08-21',
+        ]);
 
     }
 }
