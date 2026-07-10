@@ -44,6 +44,13 @@ class OrgInstanceTest extends TestCase
 
     public function test_active_orgs_are_ordered_by_date_ascending():void
     {
+        $user = User::factory()->create();
 
+        OrgInstance::factory()->create(['type' => 'CFG', 'date_meeting' => '2026-08-20']);
+        OrgInstance::factory()->create(['type' => 'CFG', 'date_meeting' => '2026-07-15']);
+        OrgInstance::factory()->create(['type' => 'CFG', 'date_meeting' => '2026-09-01']);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/orgs/active?type=CFG');
     }
 }
