@@ -156,6 +156,9 @@ class OrgInstanceTest extends TestCase
 
     public function test_authenticated_user_can_archive_an_org():void
     {
+        $user = User::factory()->create();
+        $org  = OrgInstance::factory()->create(['is_archived' => false]);
+
         
     }
 }
