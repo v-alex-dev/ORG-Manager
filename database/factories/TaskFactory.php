@@ -20,10 +20,10 @@ class TaskFactory extends Factory
     public function definition(): array
     {
         return [
-            'org_instance_id' => OrgInstance::factory(),
+            'organization_id' => OrgInstance::factory(),
             'service_id' => Service::factory(),
             'poj_title' => fake()->sentence(4),
-            'task_description' => fake()->paragraph(),
+            'poj_description' => fake()->paragraph(),
             'status' => 'TODO',
             'reference_code' => 'CFG-2026-' . str_pad(fake()->unique()->numberBetween(1, 999), 3, '0', STR_PAD_LEFT),
         ];
