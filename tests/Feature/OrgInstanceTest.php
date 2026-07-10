@@ -17,6 +17,9 @@ class OrgInstanceTest extends TestCase
     {
         $user = User::factory()->create();
 
+        OrgInstance::factory()->create(['type' => 'CFG', 'is_archived' => false]);
+        OrgInstance::factory()->create(['type' => 'CFG', 'is_archived' => false]);
+        OrgInstance::factory()->create(['type' => 'CFG', 'is_archived' => true]);
 
     }
 }
