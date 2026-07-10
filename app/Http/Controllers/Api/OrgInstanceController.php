@@ -55,4 +55,14 @@ class OrgInstanceController extends Controller
             'data' => $org,
         ], 201);
     }
+
+    /**
+     * Archive an ORG instance.
+     *
+     * PUT /api/orgs/{id}/archive
+     */
+    public function archive(int $id)
+    {
+
+    }
 }
