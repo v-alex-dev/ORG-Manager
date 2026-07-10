@@ -28,8 +28,12 @@ class OrgInstanceTest extends TestCase
             ->assertJsonCount(2,'data');
     }
 
-    public function test_active_orgs_are_filtered_by_type(): void
-    {
+    public function test_active_orgs_are_filtered_by_type():void {
+        $user = User::factory()->create();
+
+        OrgInstance::factory()->create(['type' => 'CFG']);
+        OrgInstance::factory()->create(['type' => 'COMITE']);
+
 
     }
 }
