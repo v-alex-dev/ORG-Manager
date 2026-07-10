@@ -149,4 +149,13 @@ class OrgInstanceTest extends TestCase
         ]);
 
     }
+
+    // -------------------------------------------------------------------------
+    // PUT /api/orgs/{id}/archive
+    // -------------------------------------------------------------------------
+
+    public function test_authenticated_user_can_archive_an_org():void
+    {
+        
+    }
 }
