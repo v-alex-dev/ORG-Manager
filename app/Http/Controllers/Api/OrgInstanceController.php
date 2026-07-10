@@ -45,6 +45,11 @@ class OrgInstanceController extends Controller
             'date_meeting' => ['required', 'date'],
         ]);
 
+        $org = OrgInstance::create([
+            'type' => $request->type,
+            'recurrence_type' => $request->recurrence_type,
+            'date_meeting' => $request->date_meeting,
+        ]);
 
     }
 }
