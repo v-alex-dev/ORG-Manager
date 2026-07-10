@@ -58,4 +58,9 @@ class OrgInstanceTest extends TestCase
             ->assertJsonPath('data.1.date_meeting', '2026-08-20T00:00:00.000000Z')
             ->assertJsonPath('data.2.date_meeting', '2026-09-01T00:00:00.000000Z');
     }
+
+    public function test_type_is_required_for_active_orgs():void
+    {
+
+    }
 }
