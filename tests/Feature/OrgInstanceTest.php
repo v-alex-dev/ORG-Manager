@@ -52,5 +52,10 @@ class OrgInstanceTest extends TestCase
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/api/orgs/active?type=CFG');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.0.date_meeting', '2026-07-15T00:00:00.000000Z')
+            ->assertJsonPath('data.1.date_meeting', '2026-08-20T00:00:00.000000Z')
+            ->assertJsonPath('data.2.date_meeting', '2026-09-01T00:00:00.000000Z');
     }
 }
