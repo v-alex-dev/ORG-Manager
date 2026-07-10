@@ -27,4 +27,9 @@ class OrgInstanceTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonCount(2,'data');
     }
+
+    public function test_active_orgs_are_filtered_by_type(): void
+    {
+
+    }
 }
