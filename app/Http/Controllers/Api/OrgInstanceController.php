@@ -65,6 +65,12 @@ class OrgInstanceController extends Controller
     {
         $org = OrgInstance::findOrFail($id);
 
+        if($org->is_archived) {
+            return response()->json([
+                'message' => 'This ORG is already archived.',
+            ], 422);
+        }
+
 
     }
 }
