@@ -15,6 +15,8 @@ class OrgInstanceTest extends TestCase
     // -------------------------------------------------------------------------
     public function test_authenticated_user_can_list_active_orgs(): void
     {
+        $user = User::factory()->create();
+
 
     }
 }
