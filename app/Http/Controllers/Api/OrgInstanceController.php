@@ -51,5 +51,8 @@ class OrgInstanceController extends Controller
             'date_meeting' => $request->date_meeting,
         ]);
 
+        return response()->json([
+            'data' => $org,
+        ], 201);
     }
 }
