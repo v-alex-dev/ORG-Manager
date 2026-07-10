@@ -87,4 +87,30 @@ class OrgInstanceTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    // -------------------------------------------------------------------------
+    // POST /api/orgs
+    // -------------------------------------------------------------------------
+
+    public function test_authenticated_user_can_create_an_org():void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/orgs', [
+                'type'            => 'CFG',
+                'recurrence_type' => 'HEBDO',
+                'date_meeting'    => '2026-08-21',
+            ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.type', 'CFG')
+            ->assertJsonPath('data.recurrence_type', 'HEBDO')
+            ->assertJsonPath('data.is_archived', false);
+
+        $this->assertDatabaseHas('org_instances', [
+            'type'         => 'CFG',
+            'date_meeting' => '2026-08-21',
+        ]);
+    }
 }
