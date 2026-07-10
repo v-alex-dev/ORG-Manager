@@ -113,4 +113,30 @@ class OrgInstanceTest extends TestCase
             'date_meeting' => '2026-08-21',
         ]);
     }
+
+    public function test_cannot_create_org_with_missing_fields(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/orgs', []);
+
+        $response->assertStatus(422)
+            ->assertJsonStructure(['message', 'errors' => ['type', 'recurrence_type', 'date_meeting']]);
+    }
+
+    public function test_cannot_create_org_with_invalid_type(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/orgs', [
+                'type'            => 'INVALID',
+                'recurrence_type' => 'HEBDO',
+                'date_meeting'    => '2026-08-21',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonStructure(['message', 'errors' => ['type']]);
+    }
 }
