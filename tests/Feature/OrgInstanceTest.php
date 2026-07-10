@@ -21,5 +21,9 @@ class OrgInstanceTest extends TestCase
         OrgInstance::factory()->create(['type' => 'CFG', 'is_archived' => false]);
         OrgInstance::factory()->create(['type' => 'CFG', 'is_archived' => true]);
 
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/orgs/active?type=CFG');
+
+
     }
 }
