@@ -71,6 +71,11 @@ class OrgInstanceController extends Controller
             ], 422);
         }
 
+        $org->update(['is_archived' => true]);
+
+        return response()->json([
+            'data' => $org,
+        ]);
 
     }
 }
