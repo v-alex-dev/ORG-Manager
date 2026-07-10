@@ -63,6 +63,8 @@ class OrgInstanceController extends Controller
      */
     public function archive(int $id)
     {
+        $org = OrgInstance::findOrFail($id);
+
 
     }
 }
