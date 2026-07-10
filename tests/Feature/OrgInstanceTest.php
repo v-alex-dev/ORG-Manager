@@ -61,6 +61,12 @@ class OrgInstanceTest extends TestCase
 
     public function test_type_is_required_for_active_orgs():void
     {
+        $user = User::factory()->create();
 
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/orgs/active');
+
+        $response->assertStatus(422)
+            ->assertJsonStructure(['message', 'errors' => ['type']]);
     }
 }
