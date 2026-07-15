@@ -35,4 +35,15 @@ class TaskController extends Controller
         ]);
 
     }
+
+    /**
+     * Create a new task.
+     * The reference_code is generated automatically and is immutable.
+     *
+     * POST /api/tasks
+     */
+    public function store(Request $request): JsonResponse
+    {
+
+    }
 }
