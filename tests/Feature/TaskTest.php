@@ -156,4 +156,11 @@ class TaskTest extends TestCase
 
         $response->assertStatus(422);
     }
+
+    public function test_unauthenticated_user_cannot_create_task(): void
+    {
+        $response = $this->postJson('/api/tasks', []);
+
+        $response->assertStatus(401);
+    }
 }
