@@ -76,4 +76,13 @@ class TaskTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    // -------------------------------------------------------------------------
+    // POST /api/tasks
+    // -------------------------------------------------------------------------
+
+    public function test_authenticated_user_can_create_a_task():void
+    {
+
+    }
 }
