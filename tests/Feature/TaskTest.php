@@ -83,6 +83,9 @@ class TaskTest extends TestCase
 
     public function test_authenticated_user_can_create_a_task():void
     {
+        $user    = User::factory()->create();
+        $org     = OrgInstance::factory()->cfg()->create();
+        $service = Service::factory()->create();
 
     }
 }
