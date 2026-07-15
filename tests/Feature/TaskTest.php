@@ -97,6 +97,10 @@ class TaskTest extends TestCase
             ->assertJsonPath('data.poj_title', 'Review the budget')
             ->assertJsonPath('data.status', 'TODO');
 
+        $this->assertDatabaseHas('tasks', [
+            'organization_id' => $org->id,
+            'poj_title'       => 'Review the budget',
+        ]);
 
     }
 }
