@@ -24,7 +24,7 @@ class OrgInstanceController extends Controller
 
         $org = OrgInstance::where('type', $request->type)
             ->where('is_archived', false)
-            ->orderBy('id', 'asc')
+            ->orderBy('date_meeting', 'asc')
             ->get();
 
         return response()->json([
@@ -49,7 +49,7 @@ class OrgInstanceController extends Controller
             'type' => $request->type,
             'recurrence_type' => $request->recurrence_type,
             'date_meeting' => $request->date_meeting,
-        ]);
+        ])->fresh();
 
         return response()->json([
             'data' => $org,
