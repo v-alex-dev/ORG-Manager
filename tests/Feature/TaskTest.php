@@ -110,6 +110,11 @@ class TaskTest extends TestCase
         $org     = OrgInstance::factory()->cfg()->create();
         $service = Service::factory()->create();
 
-
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/tasks', [
+                'org_instance_id' => $org->id,
+                'service_id'      => $service->id,
+                'poj_title'       => 'First task',
+            ]);
     }
 }
