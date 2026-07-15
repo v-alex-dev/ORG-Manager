@@ -74,4 +74,14 @@ class TaskController extends Controller
         ], 201);
 
     }
+
+    /**
+     * Toggle the task status between TODO and DONE.
+     *
+     * PATCH /api/tasks/{id}/status
+     */
+    public function updateStatus(int $id): JsonResponse
+    {
+
+    }
 }
