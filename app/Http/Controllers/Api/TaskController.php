@@ -101,8 +101,8 @@ class TaskController extends Controller
      * PATCH /api/tasks/{id}/move
      */
 
-    public function move(Request $request): JsonResponse
+    public function move(Request $request,int $id): JsonResponse
     {
-
+        $taslk = Task::findOrFail($id);
     }
 }
