@@ -202,5 +202,7 @@ class TaskTest extends TestCase
             ->patchJson('/api/tasks/999/status');
 
 
+        $response->assertStatus(404);
+
     }
 }
