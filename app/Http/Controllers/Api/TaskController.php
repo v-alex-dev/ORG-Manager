@@ -116,5 +116,15 @@ class TaskController extends Controller
 
         $targetOrg = OrgInstance::findOrFail($request->org_instance_id);
 
+        // Both instances must be of the same type (e.g. CFG -> CFG only)
+        $currentOrg = $task->orgInstance;
+
+        if($currentOrg->type !== $targetOrg->type ){
+            return response()->json([
+                'message' => 'Cannot move a task to a different organization',
+            ], 422);
+        }
+
+
     }
 }
