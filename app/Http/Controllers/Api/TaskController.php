@@ -88,6 +88,8 @@ class TaskController extends Controller
             'status' => $task->status === 'TODO' ? 'DONE' : 'TODO'
         ]);
 
-
+        return response()->json([
+            'data' => $task,
+        ], 202);
     }
 }
