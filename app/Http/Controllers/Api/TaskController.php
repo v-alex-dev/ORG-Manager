@@ -25,5 +25,11 @@ class TaskController extends Controller
     {
         $org = OrgInstance::findOrFail($id);
 
+        $tasks = Task::with(['service', 'orgInstance'])
+            ->where('organization_id', $id)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+
     }
 }
