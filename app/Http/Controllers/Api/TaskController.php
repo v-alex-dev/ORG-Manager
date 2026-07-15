@@ -83,5 +83,11 @@ class TaskController extends Controller
     public function updateStatus(int $id): JsonResponse
     {
         $task = Task::findOrFail($id);
+
+        $task->update([
+            'status' => $task->status === 'TODO' ? 'DONE' : 'TODO'
+        ]);
+
+
     }
 }
