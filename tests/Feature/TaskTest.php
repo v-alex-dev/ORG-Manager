@@ -41,6 +41,13 @@ class TaskTest extends TestCase
 
     public function test_tasks_only_belong_to_the_requested_org():void
     {
+        $user = User::factory()->create();
+        $org1 = OrgInstance::factory()->create();
+        $org2 = OrgInstance::factory()->create();
+
+        Task::factory()->count(2)->create(['organization_id' => $org1->id]);
+        Task::factory()->count(3)->create(['organization_id' => $org2->id]);
+
 
     }
 }
