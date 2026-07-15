@@ -12,5 +12,17 @@ use Illuminate\Validation\Rule;
 
 class TaskController extends Controller
 {
-    //
+    public function __construct(
+        private readonly ReferenceCodeService $referenceCodeService,
+    ){}
+
+    /**
+     * List all tasks for a given ORG instance, with service and org_instance relations.
+     *
+     * GET /api/orgs/{id}/tasks
+     */
+    public function index(int $id): JsonResponse
+    {
+
+    }
 }
