@@ -192,4 +192,9 @@ class TaskTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('data.status', 'TODO');
     }
+
+    public function test_returns_404_when_toggling_nonexistent_task():void
+    {
+
+    }
 }
