@@ -67,4 +67,9 @@ class TaskTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    public function test_unauthenticated_user_cannot_list_tasks():void
+    {
+
+    }
 }
