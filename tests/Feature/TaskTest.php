@@ -12,4 +12,14 @@ use Tests\TestCase;
 class TaskTest extends TestCase
 {
     use refreshDatabase;
+
+
+    // -------------------------------------------------------------------------
+    // GET /api/orgs/{id}/tasks
+    // -------------------------------------------------------------------------
+
+    public function test_authenticated_user_can_list_tasks_for_an_org():void
+    {
+
+    }
 }
