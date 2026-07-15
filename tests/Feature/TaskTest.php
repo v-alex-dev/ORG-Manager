@@ -23,5 +23,10 @@ class TaskTest extends TestCase
         $user    = User::factory()->create();
         $org     = OrgInstance::factory()->create();
         $service = Service::factory()->create();
+
+        Task::factory()->count(3)->create([
+            'organization_id' => $org->id,
+            'service_id'      => $service->id,
+        ]);
     }
 }
