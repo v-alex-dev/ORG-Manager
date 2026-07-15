@@ -44,6 +44,13 @@ class TaskController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        $request->validate([
+            'org_instance_id' => ['required', 'integer', 'exists:org_instances,id'],
+            'service_id'      => ['required', 'integer', 'exists:services,id'],
+            'poj_title'       => ['required', 'string', 'max:255'],
+            'poj_description' => ['nullable', 'string'],
+        ]);
+
 
     }
 }
