@@ -153,5 +153,7 @@ class TaskTest extends TestCase
                 'service_id'      => $service->id,
                 'poj_title'       => 'Test',
             ]);
+
+        $response->assertStatus(422);
     }
 }
