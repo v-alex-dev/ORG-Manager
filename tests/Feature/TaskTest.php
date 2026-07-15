@@ -138,5 +138,7 @@ class TaskTest extends TestCase
                 'poj_title'       => 'Second task',
             ]);
 
+        $response->assertStatus(201)
+            ->assertJsonPath('data.reference_code', "CFG-{$year}-002");
     }
 }
