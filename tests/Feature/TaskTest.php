@@ -144,6 +144,7 @@ class TaskTest extends TestCase
 
     public function test_cannot_create_task_with_missing_fields():void
     {
-
+        $user    = User::factory()->create();
+        $service = Service::factory()->create();
     }
 }
