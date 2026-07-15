@@ -30,6 +30,9 @@ class TaskController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
+        return response()->json([
+            'data'=>$tasks,
+        ]);
 
     }
 }
