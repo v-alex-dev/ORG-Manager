@@ -281,6 +281,12 @@ class TaskTest extends TestCase
         $orgTo   = OrgInstance::factory()->comite()->create();
         $task    = Task::factory()->create(['organization_id' => $orgFrom->id]);
 
+        $response = $this->actingAs($user, 'sanctum')
+            ->patchJson("/api/tasks/{$task->id}/move", [
+                'org_instance_id' => $orgTo->id,
+            ]);
 
+        $response->assertStatus(422)
+            ->assertJsonPath('message', 'Cannot move a task to a different ORG type.');
     }
 }
