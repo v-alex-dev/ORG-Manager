@@ -82,6 +82,6 @@ class TaskController extends Controller
      */
     public function updateStatus(int $id): JsonResponse
     {
-
+        $task = Task::findOrFail($id);
     }
 }
