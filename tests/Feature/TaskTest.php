@@ -289,4 +289,9 @@ class TaskTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonPath('message', 'Cannot move a task to a different ORG type.');
     }
+
+    public function test_cannot_move_task_to_the_same_org_instance():void
+    {
+
+    }
 }
