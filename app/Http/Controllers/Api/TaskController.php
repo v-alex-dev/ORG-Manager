@@ -92,4 +92,17 @@ class TaskController extends Controller
             'data' => $task,
         ], 202);
     }
+
+    /**
+     * Move a task to another ORG instance (same type).
+     * The reference_code is preserved.
+     * The status is preserved.
+     *
+     * PATCH /api/tasks/{id}/move
+     */
+
+    public function move(Request $request): JsonResponse
+    {
+
+    }
 }
