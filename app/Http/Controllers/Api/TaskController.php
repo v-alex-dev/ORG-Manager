@@ -90,7 +90,7 @@ class TaskController extends Controller
 
         return response()->json([
             'data' => $task,
-        ], 202);
+        ], 200);
     }
 
     /**
@@ -121,7 +121,7 @@ class TaskController extends Controller
 
         if($currentOrg->type !== $targetOrg->type ){
             return response()->json([
-                'message' => 'Cannot move a task to a different organization',
+                'message' => 'Cannot move a task to a different ORG type.',
             ], 422);
         }
 
