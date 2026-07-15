@@ -305,6 +305,12 @@ class TaskTest extends TestCase
 
     public function test_unauthenticated_user_cannot_move_task():void
     {
+        $task = Task::factory()->create();
 
+        $response = $this->patchJson("/api/tasks/{$task->id}/move", [
+            'org_instance_id' => 1,
+        ]);
+
+        $response->assertStatus(401);
     }
 }
