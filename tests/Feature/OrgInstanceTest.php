@@ -159,6 +159,12 @@ class OrgInstanceTest extends TestCase
         $user = User::factory()->create();
         $org  = OrgInstance::factory()->create(['is_archived' => false]);
 
-        
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/orgs/archive');
+
+        $this->assertDatabaseHas('org_instances', [
+            'id'          => $org->id,
+            'is_archived' => true,
+        ]);
     }
 }
