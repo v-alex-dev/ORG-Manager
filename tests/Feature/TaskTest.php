@@ -237,4 +237,9 @@ class TaskTest extends TestCase
             'organization_id' => $orgTo->id,
         ]);
     }
+
+    public function test_reference_code_is_preserved_after_move():void
+    {
+
+    }
 }
