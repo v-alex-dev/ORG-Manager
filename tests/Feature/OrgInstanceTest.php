@@ -167,4 +167,18 @@ class OrgInstanceTest extends TestCase
             'is_archived' => true,
         ]);
     }
+
+    public function test_cannot_archive_an_already_archived_org(): void
+    {
+        $user = User::factory()->create();
+        $org  = OrgInstance::factory()->create(['is_archived' => true]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->putJson("/api/orgs/{$org->id}/archive");
+
+        $response->assertStatus(422)
+            ->assertJsonPath('message', 'This ORG is already archived.');
+    }
+
+
 }
