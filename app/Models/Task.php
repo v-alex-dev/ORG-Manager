@@ -10,7 +10,7 @@ class Task extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'org_instance_id',
+        'organization_id',
         'service_id',
         'poj_title',
         'task_description',
@@ -23,7 +23,7 @@ class Task extends Model
     ];
 
     public function orgInstance():BelongsTo{
-        return $this->belongsTo(OrgInstance::class);
+        return $this->belongsTo(OrgInstance::class, 'organization_id');
     }
 
     public function service():BelongsTo{
