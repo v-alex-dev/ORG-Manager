@@ -269,5 +269,8 @@ class TaskTest extends TestCase
             ->patchJson("/api/tasks/{$task->id}/move", [
                 'org_instance_id' => $orgTo->id,
             ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.status', 'DONE');
     }
 }
