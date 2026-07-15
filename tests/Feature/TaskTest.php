@@ -56,4 +56,9 @@ class TaskTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonCount(2, 'data');
     }
+
+    public function test_returns_404_for_nonexistent_org():void
+    {
+
+    }
 }
