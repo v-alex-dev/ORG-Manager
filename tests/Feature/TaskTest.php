@@ -212,5 +212,15 @@ class TaskTest extends TestCase
 
         $response = $this->patchJson("/api/tasks/{$task->id}/status");
 
-        $response->assertStatus(401);    }
+        $response->assertStatus(401);
+    }
+
+    // -------------------------------------------------------------------------
+    // PATCH /api/tasks/{id}/move
+    // -------------------------------------------------------------------------
+
+    public function test_can_move_task_to_another_org_instance():void
+    {
+
+    }
 }
