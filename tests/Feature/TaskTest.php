@@ -273,4 +273,14 @@ class TaskTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('data.status', 'DONE');
     }
+
+    public function test_cannot_move_task_to_different_org_type():void
+    {
+        $user    = User::factory()->create();
+        $orgFrom = OrgInstance::factory()->cfg()->create();
+        $orgTo   = OrgInstance::factory()->comite()->create();
+        $task    = Task::factory()->create(['organization_id' => $orgFrom->id]);
+
+
+    }
 }
