@@ -103,6 +103,6 @@ class TaskController extends Controller
 
     public function move(Request $request,int $id): JsonResponse
     {
-        $taslk = Task::findOrFail($id);
+        $task = Task::findOrFail($id);
     }
 }
