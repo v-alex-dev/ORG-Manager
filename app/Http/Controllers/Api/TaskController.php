@@ -53,10 +53,19 @@ class TaskController extends Controller
 
         $org = OrgInstance::findOrFail($request->org_instance_id);
 
-        $referenceCoode =  $this->referenceCodeService->generate(
+        $referenceCode =  $this->referenceCodeService->generate(
             $org->type,
             (int) now()->format('Y')
         );
+
+        $task = Task::create([
+            'organization_id' => $org->id,
+            'service_id'      => $request->service_id,
+            'poj_title'       => $request->poj_title,
+            'poj_description' => $request->poj_description,
+            'status'          => 'TODO',
+            'reference_code'  => $referenceCode,
+        ]);
 
     }
 }
