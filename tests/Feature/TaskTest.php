@@ -71,5 +71,7 @@ class TaskTest extends TestCase
     public function test_unauthenticated_user_cannot_list_tasks():void
     {
         $org = OrgInstance::factory()->create();
+
+        $response = $this->getJson("/api/orgs/{$org->id}/tasks");
     }
 }
