@@ -227,7 +227,7 @@ class TaskTest extends TestCase
         $task    = Task::factory()->create(['organization_id' => $orgFrom->id]);
 
         $response = $this->actingAs($user, 'sanctum')
-            >patchJson("/api/tasks/{$task->id}/move", [
+            ->patchJson("/api/tasks/{$task->id}/move", [
                 'org_instance_id' => $orgTo->id,
             ]);
         $response->assertStatus(200);
