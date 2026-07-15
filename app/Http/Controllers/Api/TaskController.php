@@ -131,5 +131,9 @@ class TaskController extends Controller
 
         $task->load(['service', 'orgInstance']);
 
+        return response()->json([
+            'data'=>$task,
+        ]);
+
     }
 }
