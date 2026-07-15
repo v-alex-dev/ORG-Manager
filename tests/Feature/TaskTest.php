@@ -116,5 +116,9 @@ class TaskTest extends TestCase
                 'service_id'      => $service->id,
                 'poj_title'       => 'First task',
             ]);
+
+        $year = now()->format('Y');
+        $response->assertStatus(201)
+            ->assertJsonPath('data.reference_code', "CFG-{$year}-001");
     }
 }
