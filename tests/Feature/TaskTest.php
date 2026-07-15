@@ -195,6 +195,8 @@ class TaskTest extends TestCase
 
     public function test_returns_404_when_toggling_nonexistent_task():void
     {
+        $user = User::factory()->create();
+
 
     }
 }
