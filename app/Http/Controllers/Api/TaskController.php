@@ -134,6 +134,5 @@ class TaskController extends Controller
         return response()->json([
             'data'=>$task,
         ]);
-
     }
 }
