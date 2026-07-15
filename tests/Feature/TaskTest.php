@@ -93,5 +93,10 @@ class TaskTest extends TestCase
                 'service_id'      => $service->id,
                 'poj_title'       => 'Review the budget',
             ]);
+        $response->assertStatus(201)
+            ->assertJsonPath('data.poj_title', 'Review the budget')
+            ->assertJsonPath('data.status', 'TODO');
+
+
     }
 }
