@@ -189,4 +189,13 @@ class OrgInstanceTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    public function test_unauthenticated_user_cannot_archive_org(): void
+    {
+        $org = OrgInstance::factory()->create();
+
+        $response = $this->putJson("/api/orgs/{$org->id}/archive");
+
+        $response->assertStatus(401);
+    }
 }
