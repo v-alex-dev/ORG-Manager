@@ -23,6 +23,7 @@ class TaskController extends Controller
      */
     public function index(int $id): JsonResponse
     {
+        $org = OrgInstance::findOrFail($id);
 
     }
 }
