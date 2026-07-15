@@ -259,6 +259,10 @@ class TaskTest extends TestCase
 
     public function test_status_is_preserved_after_move():void
     {
+        $user    = User::factory()->create();
+        $orgFrom = OrgInstance::factory()->cfg()->create();
+        $orgTo   = OrgInstance::factory()->cfg()->create();
+        $task    = Task::factory()->done()->create(['organization_id' => $orgFrom->id]);
 
     }
 }
