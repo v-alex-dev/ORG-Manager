@@ -20,6 +20,8 @@ class TaskTest extends TestCase
 
     public function test_authenticated_user_can_list_tasks_for_an_org():void
     {
-
+        $user    = User::factory()->create();
+        $org     = OrgInstance::factory()->create();
+        $service = Service::factory()->create();
     }
 }
