@@ -295,5 +295,11 @@ class TaskTest extends TestCase
         $user = User::factory()->create();
         $org  = OrgInstance::factory()->cfg()->create();
         $task = Task::factory()->create(['organization_id' => $org->id]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->patchJson("/api/tasks/{$task->id}/move", [
+                'org_instance_id' => $org->id,
+            ]);
+
     }
 }
