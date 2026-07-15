@@ -198,5 +198,9 @@ class TaskTest extends TestCase
         $user = User::factory()->create();
 
 
+        $response = $this->actingAs($user, 'sanctum')
+            ->patchJson('/api/tasks/999/status');
+
+
     }
 }
