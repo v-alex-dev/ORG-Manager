@@ -29,4 +29,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orgs/active', [OrgInstanceController::class, 'active']);
     Route::post('/orgs', [OrgInstanceController::class, 'store']);
     Route::put('/orgs/{id}/archive', [OrgInstanceController::class, 'archive']);
+
+    // Tasks
+    Route::get('/orgs/{id}/tasks',        [TaskController::class, 'index']);
+    Route::post('/tasks',                  [TaskController::class, 'store']);
+    Route::patch('/tasks/{id}/status',     [TaskController::class, 'updateStatus']);
+    Route::patch('/tasks/{id}/move',       [TaskController::class, 'move']);
 });
