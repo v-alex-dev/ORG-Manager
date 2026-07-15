@@ -183,6 +183,9 @@ class TaskTest extends TestCase
 
     public function test_can_toggle_task_status_from_done_to_todo():void
     {
+        $user = User::factory()->create();
+        $task = Task::factory()->done()->create();
+
 
     }
 }
