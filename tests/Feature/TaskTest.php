@@ -73,5 +73,7 @@ class TaskTest extends TestCase
         $org = OrgInstance::factory()->create();
 
         $response = $this->getJson("/api/orgs/{$org->id}/tasks");
+
+        $response->assertStatus(401);
     }
 }
