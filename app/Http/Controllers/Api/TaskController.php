@@ -53,6 +53,10 @@ class TaskController extends Controller
 
         $org = OrgInstance::findOrFail($request->org_instance_id);
 
+        $referenceCoode =  $this->referenceCodeService->generate(
+            $org->type,
+            (int) now()->format('Y')
+        );
 
     }
 }
