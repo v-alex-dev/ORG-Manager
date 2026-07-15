@@ -163,4 +163,13 @@ class TaskTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    // -------------------------------------------------------------------------
+    // PATCH /api/tasks/{id}/status
+    // -------------------------------------------------------------------------
+
+    public function test_can_toggle_task_status_from_todo_to_done():void
+    {
+
+    }
 }
