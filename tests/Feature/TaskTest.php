@@ -302,4 +302,9 @@ class TaskTest extends TestCase
             ]);
         $response->assertStatus(422);
     }
+
+    public function test_unauthenticated_user_cannot_move_task():void
+    {
+
+    }
 }
