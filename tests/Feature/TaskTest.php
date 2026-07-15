@@ -146,5 +146,12 @@ class TaskTest extends TestCase
     {
         $user    = User::factory()->create();
         $service = Service::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/tasks', [
+                'org_instance_id' => 999,
+                'service_id'      => $service->id,
+                'poj_title'       => 'Test',
+            ]);
     }
 }
