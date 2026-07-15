@@ -103,4 +103,13 @@ class TaskTest extends TestCase
         ]);
 
     }
+
+    public function test_reference_code_is_generated_automatically():void
+    {
+        $user    = User::factory()->create();
+        $org     = OrgInstance::factory()->cfg()->create();
+        $service = Service::factory()->create();
+
+
+    }
 }
