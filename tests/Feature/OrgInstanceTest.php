@@ -180,5 +180,13 @@ class OrgInstanceTest extends TestCase
             ->assertJsonPath('message', 'This ORG is already archived.');
     }
 
+    public function test_cannot_archive_a_nonexistent_org(): void
+    {
+        $user = User::factory()->create();
 
+        $response = $this->actingAs($user, 'sanctum')
+            ->putJson('/api/orgs/999/archive');
+
+        $response->assertStatus(404);
+    }
 }
