@@ -28,5 +28,8 @@ class TaskTest extends TestCase
             'organization_id' => $org->id,
             'service_id'      => $service->id,
         ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/orgs/{$org->id}/tasks");
     }
 }
