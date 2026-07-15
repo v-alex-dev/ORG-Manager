@@ -125,6 +125,11 @@ class TaskController extends Controller
             ], 422);
         }
 
+        $task->update([
+            'organization_id' => $targetOrg->id,
+        ]);
+
+        $task->load(['service', 'orgInstance']);
 
     }
 }
