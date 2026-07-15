@@ -31,5 +31,11 @@ class TaskTest extends TestCase
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/orgs/{$org->id}/tasks");
+
+        $response->assertStatus(200)
+            ->assertJsonCount(3, 'data')
+            ->assertJsonStructure([
+                'data' => [['id', 'poj_title', 'status', 'reference_code', 'service', 'org_instance']],
+            ]);
     }
 }
