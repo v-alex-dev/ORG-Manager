@@ -60,5 +60,11 @@ class TaskTest extends TestCase
     public function test_returns_404_for_nonexistent_org():void
     {
         $user = User::factory()->create();
+
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/orgs/999/tasks');
+
+
     }
 }
