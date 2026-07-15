@@ -209,5 +209,8 @@ class TaskTest extends TestCase
     public function test_unauthenticated_user_cannot_toggle_status():void
     {
         $task = Task::factory()->create();
-    }
+
+        $response = $this->patchJson("/api/tasks/{$task->id}/status");
+
+        $response->assertStatus(401);    }
 }
