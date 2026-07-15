@@ -67,5 +67,11 @@ class TaskController extends Controller
             'reference_code'  => $referenceCode,
         ]);
 
+        $task->load(['service', 'orgInstance']);
+
+        return response()->json([
+            'data'=>$task,
+        ], 201);
+
     }
 }
