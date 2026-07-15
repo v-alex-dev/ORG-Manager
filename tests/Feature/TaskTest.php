@@ -175,5 +175,8 @@ class TaskTest extends TestCase
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson("/api/tasks/{$task->id}/status");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.status', 'DONE');
     }
 }
