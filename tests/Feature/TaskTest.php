@@ -121,4 +121,9 @@ class TaskTest extends TestCase
         $response->assertStatus(201)
             ->assertJsonPath('data.reference_code', "CFG-{$year}-001");
     }
+
+    public function test_reference_code_increments_correctly():void
+    {
+
+    }
 }
