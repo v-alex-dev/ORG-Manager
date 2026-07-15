@@ -221,6 +221,15 @@ class TaskTest extends TestCase
 
     public function test_can_move_task_to_another_org_instance():void
     {
+        $user    = User::factory()->create();
+        $orgFrom = OrgInstance::factory()->cfg()->create();
+        $orgTo   = OrgInstance::factory()->cfg()->create();
+        $task    = Task::factory()->create(['organization_id' => $orgFrom->id]);
 
+        $response = $this->actingAs($user, 'sanctum')
+            >patchJson("/api/tasks/{$task->id}/move", [
+                'org_instance_id' => $orgTo->id,
+            ]);
+        
     }
 }
