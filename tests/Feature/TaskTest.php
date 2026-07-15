@@ -141,4 +141,9 @@ class TaskTest extends TestCase
         $response->assertStatus(201)
             ->assertJsonPath('data.reference_code', "CFG-{$year}-002");
     }
+
+    public function test_cannot_create_task_with_missing_fields():void
+    {
+
+    }
 }
