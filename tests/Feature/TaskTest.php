@@ -256,4 +256,9 @@ class TaskTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('data.reference_code', 'CFG-2026-007');
     }
+
+    public function test_status_is_preserved_after_move():void
+    {
+
+    }
 }
