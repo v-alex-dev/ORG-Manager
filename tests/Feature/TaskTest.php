@@ -49,5 +49,7 @@ class TaskTest extends TestCase
         Task::factory()->count(3)->create(['organization_id' => $org2->id]);
 
 
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/orgs/{$org1->id}/tasks");
     }
 }
