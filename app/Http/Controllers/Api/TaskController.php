@@ -104,5 +104,14 @@ class TaskController extends Controller
     public function move(Request $request,int $id): JsonResponse
     {
         $task = Task::findOrFail($id);
+
+        $request->validate([
+            'org_instance_id' => [
+                'required',
+                'integer',
+                'exists:org_instances,id',
+                Rule::notIn([$task->organization_id]),
+            ],
+        ]);
     }
 }
