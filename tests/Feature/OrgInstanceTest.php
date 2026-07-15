@@ -149,6 +149,8 @@ class OrgInstanceTest extends TestCase
             'date_meeting'    => '2026-08-21',
         ]);
 
+        $response->assertStatus(401);
+
     }
 
     // -------------------------------------------------------------------------
@@ -161,7 +163,7 @@ class OrgInstanceTest extends TestCase
         $org  = OrgInstance::factory()->create(['is_archived' => false]);
 
         $response = $this->actingAs($user, 'sanctum')
-            ->postJson('/api/orgs/archive');
+            ->postJson("/api/orgs/{$org->id}/archive");
 
         $this->assertDatabaseHas('org_instances', [
             'id'          => $org->id,
