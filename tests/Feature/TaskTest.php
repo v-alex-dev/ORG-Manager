@@ -292,6 +292,8 @@ class TaskTest extends TestCase
 
     public function test_cannot_move_task_to_the_same_org_instance():void
     {
-
+        $user = User::factory()->create();
+        $org  = OrgInstance::factory()->cfg()->create();
+        $task = Task::factory()->create(['organization_id' => $org->id]);
     }
 }
