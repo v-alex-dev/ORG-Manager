@@ -59,6 +59,6 @@ class TaskTest extends TestCase
 
     public function test_returns_404_for_nonexistent_org():void
     {
-
+        $user = User::factory()->create();
     }
 }
