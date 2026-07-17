@@ -132,6 +132,28 @@ class ArchiveTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonCount(1, 'data');
     }
+    public function test_response_includes_pagination_metadata(): void
+    {
+        $user = User::factory()->create();
+        $org  = OrgInstance::factory()->archived()->create();
+
+        Task::factory()->count(3)->create(['organization_id' => $org->id]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/archives');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'data',
+                'path',
+                'per_page',
+                'next_cursor',
+                'next_page_url',
+                'prev_cursor',
+                'prev_page_url',
+            ]);
+    }
+
 
     public function test_returns_empty_when_no_match():void
     {
