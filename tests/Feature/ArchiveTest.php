@@ -132,4 +132,15 @@ class ArchiveTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonCount(1, 'data');
     }
+
+    public function test_returns_empty_when_no_match():void
+    {
+        $user = User::factory()->create();
+        $org  = OrgInstance::factory()->archived()->create();
+
+        Task::factory()->create([
+            'organization_id' => $org->id,
+            'poj_title'       => 'Something else',
+        ]);
+    }
 }
