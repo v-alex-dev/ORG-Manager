@@ -33,4 +33,9 @@ class ArchiveTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonCount(1, 'data');
     }
+
+    public function test_filter_by_type():void
+    {
+
+    }
 }
