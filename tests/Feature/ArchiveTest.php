@@ -88,5 +88,5 @@ class ArchiveTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.poj_title', 'Review the annual budget');
     }
-    }
+
 }
