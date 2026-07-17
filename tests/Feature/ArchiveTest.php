@@ -43,6 +43,8 @@ class ArchiveTest extends TestCase
         Task::factory()->create(['organization_id' => $cfg->id]);
         Task::factory()->create(['organization_id' => $comite->id]);
 
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/archives?type=CFG');
 
     }
 }
