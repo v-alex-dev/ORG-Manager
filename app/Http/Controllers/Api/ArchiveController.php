@@ -42,7 +42,9 @@ class ArchiveController extends Controller
                     $query->whereYear('date_meeting', $request->year);
                 }
             })
-
+            ->when($request->filled('poj_title'), function ($query) use ($request) {
+                $query->where('poj_title', 'like', '%' . $request->poj_title . '%');
+            })
         ;
 
     }
