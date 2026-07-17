@@ -49,9 +49,9 @@ class ArchiveController extends Controller
                 $query->where('reference_code', 'like', '%' . $request->reference_code . '%');
             })
             ->orderBy('reference_code', 'asc')
-            ->get();
+            ->cursorPaginate(25);
 
-        return response()->json(['data' => $tasks]);
+        return response()->json($tasks);
 
     }
 }
