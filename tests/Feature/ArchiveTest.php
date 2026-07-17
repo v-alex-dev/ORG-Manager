@@ -80,5 +80,8 @@ class ArchiveTest extends TestCase
             'organization_id' => $org->id,
             'poj_title'       => 'HR recruitment plan',
         ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/archives?poj_title=budget');
     }
 }
