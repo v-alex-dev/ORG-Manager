@@ -102,5 +102,8 @@ class ArchiveTest extends TestCase
             'organization_id' => $org->id,
             'reference_code'  => 'CFG-2026-002',
         ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/archives?reference_code=001');
     }
 }
