@@ -48,6 +48,8 @@ class ArchiveController extends Controller
             ->when($request->filled('reference_code'), function ($query) use ($request) {
                 $query->where('reference_code', 'like', '%' . $request->reference_code . '%');
             })
+            ->orderBy('reference_code', 'asc')
+            ->get()
         ;
 
     }
