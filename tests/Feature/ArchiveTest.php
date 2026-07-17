@@ -110,4 +110,20 @@ class ArchiveTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.reference_code', 'CFG-2026-001');
     }
+
+    public function test_filters_are_cumulative():void
+    {
+        $user   = User::factory()->create();
+        $cfg26  = OrgInstance::factory()->cfg()->archived()->create(['date_meeting' => '2026-03-01']);
+        $cfg25  = OrgInstance::factory()->cfg()->archived()->create(['date_meeting' => '2025-03-01']);
+
+        Task::factory()->create([
+            'organization_id' => $cfg26->id,
+            'poj_title'       => 'Review the budget',
+        ]);
+        Task::factory()->create([
+            'organization_id' => $cfg25->id,
+            'poj_title'       => 'Review the budget',
+        ]);
+    }
 }
