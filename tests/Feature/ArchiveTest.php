@@ -129,5 +129,7 @@ class ArchiveTest extends TestCase
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/api/archives?type=CFG&year=2026&poj_title=budget');
 
+        $response->assertStatus(200)
+            ->assertJsonCount(1, 'data');
     }
 }
