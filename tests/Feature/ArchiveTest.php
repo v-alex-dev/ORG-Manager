@@ -154,6 +154,21 @@ class ArchiveTest extends TestCase
             ]);
     }
 
+    public function test_paginates_at_25_per_page(): void
+    {
+        $user = User::factory()->create();
+        $org  = OrgInstance::factory()->archived()->create();
+
+        Task::factory()->count(30)->create(['organization_id' => $org->id]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/archives');
+
+        $response->assertStatus(200)
+            ->assertJsonCount(25, 'data')
+            ->assertJsonPath('per_page', 25);
+    }
+
 
     public function test_returns_empty_when_no_match():void
     {
