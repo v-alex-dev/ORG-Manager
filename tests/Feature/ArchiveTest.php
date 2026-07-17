@@ -36,6 +36,13 @@ class ArchiveTest extends TestCase
 
     public function test_filter_by_type():void
     {
+        $user    = User::factory()->create();
+        $cfg     = OrgInstance::factory()->cfg()->archived()->create();
+        $comite  = OrgInstance::factory()->comite()->archived()->create();
+
+        Task::factory()->create(['organization_id' => $cfg->id]);
+        Task::factory()->create(['organization_id' => $comite->id]);
+
 
     }
 }
