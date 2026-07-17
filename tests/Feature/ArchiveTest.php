@@ -50,4 +50,14 @@ class ArchiveTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.org_instance.type', 'CFG');
     }
+
+    public function test_filter_by_year():void
+    {
+        $user  = User::factory()->create();
+        $org26 = OrgInstance::factory()->archived()->create(['date_meeting' => '2026-03-01']);
+        $org25 = OrgInstance::factory()->archived()->create(['date_meeting' => '2025-03-01']);
+
+        Task::factory()->create(['organization_id' => $org26->id]);
+        Task::factory()->create(['organization_id' => $org25->id]);
+    }
 }
