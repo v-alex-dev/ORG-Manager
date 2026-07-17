@@ -12,4 +12,15 @@ use Tests\TestCase;
 class ArchiveTest extends TestCase
 {
    use RefreshDatabase;
+
+    // -------------------------------------------------------------------------
+    // GET /api/archives
+    // -------------------------------------------------------------------------
+
+    public function test_returns_tasks_from_archived_orgs_only():void
+    {
+        $user      = User::factory()->create();
+        $archived  = OrgInstance::factory()->archived()->create();
+        $active    = OrgInstance::factory()->create(['is_archived' => false]);
+    }
 }
