@@ -125,5 +125,9 @@ class ArchiveTest extends TestCase
             'organization_id' => $cfg25->id,
             'poj_title'       => 'Review the budget',
         ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/archives?type=CFG&year=2026&poj_title=budget');
+
     }
 }
