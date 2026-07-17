@@ -36,4 +36,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tasks',                  [TaskController::class, 'store']);
     Route::patch('/tasks/{id}/status',     [TaskController::class, 'updateStatus']);
     Route::patch('/tasks/{id}/move',       [TaskController::class, 'move']);
+
+    // Archives
+    // Archives
+    Route::get('/archives', [ArchiveController::class, 'index']);
 });
