@@ -89,4 +89,18 @@ class ArchiveTest extends TestCase
             ->assertJsonPath('data.0.poj_title', 'Review the annual budget');
     }
 
+    public function test_filter_by_reference_code():void
+    {
+        $user = User::factory()->create();
+        $org  = OrgInstance::factory()->archived()->create();
+
+        Task::factory()->create([
+            'organization_id' => $org->id,
+            'reference_code'  => 'CFG-2026-001',
+        ]);
+        Task::factory()->create([
+            'organization_id' => $org->id,
+            'reference_code'  => 'CFG-2026-002',
+        ]);
+    }
 }
