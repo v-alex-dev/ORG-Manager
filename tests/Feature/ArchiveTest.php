@@ -105,5 +105,9 @@ class ArchiveTest extends TestCase
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/api/archives?reference_code=001');
+
+        $response->assertStatus(200)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.reference_code', 'CFG-2026-001');
     }
 }
