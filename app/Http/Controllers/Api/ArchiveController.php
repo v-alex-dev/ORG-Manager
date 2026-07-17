@@ -33,7 +33,17 @@ class ArchiveController extends Controller
         $tasks = Task::with(['service', 'orgInstance'])
             ->whereHas('orgInstance', function ($query) use ($request) {
                 $query->where('is_archived', true);
-            });
+
+                if ($request->filled('type')) {
+                    $query->where('type', $request->type);
+                }
+
+                if ($request->filled('year')) {
+                    $query->whereYear('date_meeting', $request->year);
+                }
+            })
+
+        ;
 
     }
 }
