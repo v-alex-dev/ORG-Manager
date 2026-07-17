@@ -22,5 +22,8 @@ class ArchiveTest extends TestCase
         $user      = User::factory()->create();
         $archived  = OrgInstance::factory()->archived()->create();
         $active    = OrgInstance::factory()->create(['is_archived' => false]);
+
+        Task::factory()->create(['organization_id' => $archived->id]);
+        Task::factory()->create(['organization_id' => $active->id]);
     }
 }
