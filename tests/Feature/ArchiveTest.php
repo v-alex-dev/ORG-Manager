@@ -63,5 +63,7 @@ class ArchiveTest extends TestCase
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/api/archives?year=2026');
 
+        $response->assertStatus(200)
+            ->assertJsonCount(1, 'data');
     }
 }
