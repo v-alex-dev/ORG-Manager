@@ -149,4 +149,15 @@ class ArchiveTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonCount(0, 'data');
     }
+
+    public function test_invalid_type_returns_422():void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/archives?type=INVALID');
+
+        $response->assertStatus(422)
+            ->assertJsonStructure(['message', 'errors' => ['type']]);
+    }
 }
