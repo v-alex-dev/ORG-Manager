@@ -28,5 +28,9 @@ class ArchiveTest extends TestCase
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/api/archives');
+
+
+        $response->assertStatus(200)
+            ->assertJsonCount(1, 'data');
     }
 }
