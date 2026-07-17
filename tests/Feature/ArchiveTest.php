@@ -66,4 +66,19 @@ class ArchiveTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonCount(1, 'data');
     }
+
+    public function test_filter_by_poj_title():void
+    {
+        $user = User::factory()->create();
+        $org  = OrgInstance::factory()->archived()->create();
+
+        Task::factory()->create([
+            'organization_id' => $org->id,
+            'poj_title'       => 'Review the annual budget',
+        ]);
+        Task::factory()->create([
+            'organization_id' => $org->id,
+            'poj_title'       => 'HR recruitment plan',
+        ]);
+    }
 }
