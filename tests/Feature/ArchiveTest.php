@@ -25,5 +25,8 @@ class ArchiveTest extends TestCase
 
         Task::factory()->create(['organization_id' => $archived->id]);
         Task::factory()->create(['organization_id' => $active->id]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/archives');
     }
 }
