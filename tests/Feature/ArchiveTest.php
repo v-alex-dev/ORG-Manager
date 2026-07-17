@@ -160,4 +160,11 @@ class ArchiveTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonStructure(['message', 'errors' => ['type']]);
     }
+
+    public function test_unauthenticated_user_cannot_access_archives(): void
+    {
+        $response = $this->getJson('/api/archives');
+
+        $response->assertStatus(401);
+    }
 }
