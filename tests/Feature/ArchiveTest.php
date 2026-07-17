@@ -59,5 +59,9 @@ class ArchiveTest extends TestCase
 
         Task::factory()->create(['organization_id' => $org26->id]);
         Task::factory()->create(['organization_id' => $org25->id]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/archives?year=2026');
+
     }
 }
