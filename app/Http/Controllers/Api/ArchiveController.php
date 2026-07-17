@@ -45,6 +45,9 @@ class ArchiveController extends Controller
             ->when($request->filled('poj_title'), function ($query) use ($request) {
                 $query->where('poj_title', 'like', '%' . $request->poj_title . '%');
             })
+            ->when($request->filled('reference_code'), function ($query) use ($request) {
+                $query->where('reference_code', 'like', '%' . $request->reference_code . '%');
+            })
         ;
 
     }
