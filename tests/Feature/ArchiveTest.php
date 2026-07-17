@@ -142,5 +142,11 @@ class ArchiveTest extends TestCase
             'organization_id' => $org->id,
             'poj_title'       => 'Something else',
         ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/archives?poj_title=budget');
+
+        $response->assertStatus(200)
+            ->assertJsonCount(0, 'data');
     }
 }
