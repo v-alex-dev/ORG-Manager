@@ -364,7 +364,7 @@ Returns tasks from archived OrgInstances. All filters are optional and cumulativ
 | Parameter | Type | Description |
 |---|---|---|
 | type | string | `CFG` or `COMITE` |
-| year | integer | Filters on `date_meeting` year |
+| date_meeting | DATE | Unique per type (one meeting per body and per day) |
 | poj_title | string | Partial match (`LIKE %value%`) |
 | reference_code | string | Partial match (`LIKE %value%`) |
 | cursor | string | Cursor token from a previous response |
