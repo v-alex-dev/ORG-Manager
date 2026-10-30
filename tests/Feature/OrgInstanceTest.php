@@ -201,4 +201,43 @@ class OrgInstanceTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    public function test_cannot_create_two_orgs_of_same_type_on_same_date(): void
+    {
+        $user = User::factory()->create();
+
+        OrgInstance::factory()->create([
+            'type' => 'CFG',
+            'date_meeting' => '2026-08-21',
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/orgs', [
+                'type'            => 'CFG',
+                'recurrence_type' => 'HEBDO',
+                'date_meeting'    => '2026-08-21',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonStructure(['message', 'errors' => ['date_meeting']]);
+    }
+
+    public function test_can_create_different_types_on_same_date(): void
+    {
+        $user = User::factory()->create();
+
+        OrgInstance::factory()->create([
+            'type' => 'CFG',
+            'date_meeting' => '2026-08-21',
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/orgs', [
+                'type'            => 'COMITE',
+                'recurrence_type' => 'HEBDO',
+                'date_meeting'    => '2026-08-21',
+            ]);
+
+        $response->assertStatus(201);
+    }
 }
