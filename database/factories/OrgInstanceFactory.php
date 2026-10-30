@@ -20,7 +20,7 @@ class OrgInstanceFactory extends Factory
         return [
             'type' => fake()->randomElement(['CFG', 'COMITE']),
             'recurrence_type' => fake()->randomElement(['HEBDO', 'OCCASIONNEL']),
-            'date_meeting' => fake()->dateTimeBetween('now', '+3 months'),
+            'date_meeting' => now()->addDays(fake()->unique()->numberBetween(1, 3650))->toDateString(),
             'is_archived' => false
         ];
     }
