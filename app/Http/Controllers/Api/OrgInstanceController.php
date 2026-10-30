@@ -42,7 +42,15 @@ class OrgInstanceController extends Controller
         $request->validate([
             'type' => ['required', Rule::in(['CFG', 'COMITE'])],
             'recurrence_type' => ['required', Rule::in(['HEBDO', 'OCCASIONNEL'])],
-            'date_meeting' => ['required', 'date'],
+            'date_meeting' => [
+                'required',
+                'date_format:Y-m-d',
+                // Unique only within the same type
+                Rule::unique('org_instances', 'date_meeting')
+                    ->where('type', $request->type),
+            ],
+        ], [
+            'date_meeting.unique' => 'A meeting already exists for this body on this date.',
         ]);
 
         $org = OrgInstance::create([
