@@ -104,10 +104,10 @@ class TaskTest extends TestCase
 
     }
 
-    public function test_reference_code_is_generated_automatically():void
+    public function test_reference_code_is_generated_automatically(): void
     {
         $user    = User::factory()->create();
-        $org     = OrgInstance::factory()->cfg()->create();
+        $org     = OrgInstance::factory()->cfg()->create(['date_meeting' => '2026-08-21']);
         $service = Service::factory()->create();
 
         $response = $this->actingAs($user, 'sanctum')
@@ -117,19 +117,17 @@ class TaskTest extends TestCase
                 'poj_title'       => 'First task',
             ]);
 
-        $year = now()->format('Y');
         $response->assertStatus(201)
-            ->assertJsonPath('data.reference_code', "CFG-{$year}-001");
+            ->assertJsonPath('data.reference_code', 'CFG-2026-001');
     }
 
-    public function test_reference_code_increments_correctly():void
+    public function test_reference_code_increments_correctly(): void
     {
         $user    = User::factory()->create();
-        $org     = OrgInstance::factory()->cfg()->create();
+        $org     = OrgInstance::factory()->cfg()->create(['date_meeting' => '2026-08-21']);
         $service = Service::factory()->create();
 
-        $year = now()->format('Y');
-        Task::factory()->create(['reference_code' => "CFG-{$year}-001"]);
+        Task::factory()->create(['reference_code' => 'CFG-2026-001']);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson('/api/tasks', [
@@ -139,7 +137,7 @@ class TaskTest extends TestCase
             ]);
 
         $response->assertStatus(201)
-            ->assertJsonPath('data.reference_code', "CFG-{$year}-002");
+            ->assertJsonPath('data.reference_code', 'CFG-2026-002');
     }
 
     public function test_cannot_create_task_with_missing_fields():void
@@ -312,5 +310,171 @@ class TaskTest extends TestCase
         ]);
 
         $response->assertStatus(401);
+    }
+
+    public function test_reference_code_resets_for_a_new_meeting_year(): void
+    {
+        $user    = User::factory()->create();
+        $service = Service::factory()->create();
+
+        // Existing tasks from 2026
+        Task::factory()->create(['reference_code' => 'CFG-2026-001']);
+        Task::factory()->create(['reference_code' => 'CFG-2026-002']);
+        Task::factory()->create(['reference_code' => 'CFG-2026-003']);
+
+        // Meeting in January 2027, created before the year changes
+        $org = OrgInstance::factory()->cfg()->create(['date_meeting' => '2027-01-20']);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/tasks', [
+                'org_instance_id' => $org->id,
+                'service_id'      => $service->id,
+                'poj_title'       => 'First task of 2027',
+            ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.reference_code', 'CFG-2027-001');
+    }
+
+    public function test_reference_code_uses_meeting_year_not_current_year(): void
+    {
+        $user    = User::factory()->create();
+        $service = Service::factory()->create();
+
+        // Meeting far in the past, to prove today's date is ignored
+        $org = OrgInstance::factory()->comite()->create(['date_meeting' => '2020-05-10']);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/tasks', [
+                'org_instance_id' => $org->id,
+                'service_id'      => $service->id,
+                'poj_title'       => 'Old meeting task',
+            ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.reference_code', 'COMITE-2020-001');
+    }
+
+    public function test_poj_description_is_saved_on_creation(): void
+    {
+        $user    = User::factory()->create();
+        $org     = OrgInstance::factory()->cfg()->create();
+        $service = Service::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/tasks', [
+                'org_instance_id' => $org->id,
+                'service_id'      => $service->id,
+                'poj_title'       => 'Task with description',
+                'poj_description' => 'This text must be saved.',
+            ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.poj_description', 'This text must be saved.');
+
+        $this->assertDatabaseHas('tasks', [
+            'poj_title'       => 'Task with description',
+            'poj_description' => 'This text must be saved.',
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
+// Length limits (POST /api/tasks)
+// -------------------------------------------------------------------------
+
+    public function test_title_accepts_100_characters_and_rejects_101(): void
+    {
+        $user    = User::factory()->create();
+        $org     = OrgInstance::factory()->cfg()->create();
+        $service = Service::factory()->create();
+
+        $ok = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/tasks', [
+                'org_instance_id' => $org->id,
+                'service_id'      => $service->id,
+                'poj_title'       => str_repeat('a', 100),
+            ]);
+        $ok->assertStatus(201);
+
+        $tooLong = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/tasks', [
+                'org_instance_id' => $org->id,
+                'service_id'      => $service->id,
+                'poj_title'       => str_repeat('a', 101),
+            ]);
+        $tooLong->assertStatus(422)
+            ->assertJsonStructure(['message', 'errors' => ['poj_title']]);
+    }
+
+    public function test_description_accepts_500_characters_and_rejects_501(): void
+    {
+        $user    = User::factory()->create();
+        $org     = OrgInstance::factory()->cfg()->create();
+        $service = Service::factory()->create();
+
+        $ok = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/tasks', [
+                'org_instance_id' => $org->id,
+                'service_id'      => $service->id,
+                'poj_title'       => 'Valid title',
+                'poj_description' => str_repeat('a', 500),
+            ]);
+        $ok->assertStatus(201);
+
+        $tooLong = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/tasks', [
+                'org_instance_id' => $org->id,
+                'service_id'      => $service->id,
+                'poj_title'       => 'Another title',
+                'poj_description' => str_repeat('a', 501),
+            ]);
+        $tooLong->assertStatus(422)
+            ->assertJsonStructure(['message', 'errors' => ['poj_description']]);
+    }
+
+// -------------------------------------------------------------------------
+// Archived ORG protection (PATCH /api/tasks/{id}/move)
+// -------------------------------------------------------------------------
+
+    public function test_cannot_move_task_from_an_archived_org(): void
+    {
+        $user    = User::factory()->create();
+        $orgFrom = OrgInstance::factory()->cfg()->archived()->create();
+        $orgTo   = OrgInstance::factory()->cfg()->create();
+        $task    = Task::factory()->create(['organization_id' => $orgFrom->id]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->patchJson("/api/tasks/{$task->id}/move", [
+                'org_instance_id' => $orgTo->id,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('message', 'Cannot move a task from an archived ORG.');
+
+        $this->assertDatabaseHas('tasks', [
+            'id'              => $task->id,
+            'organization_id' => $orgFrom->id,
+        ]);
+    }
+
+    public function test_cannot_move_task_to_an_archived_org(): void
+    {
+        $user    = User::factory()->create();
+        $orgFrom = OrgInstance::factory()->cfg()->create();
+        $orgTo   = OrgInstance::factory()->cfg()->archived()->create();
+        $task    = Task::factory()->create(['organization_id' => $orgFrom->id]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->patchJson("/api/tasks/{$task->id}/move", [
+                'org_instance_id' => $orgTo->id,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('message', 'Cannot move a task to an archived ORG.');
+
+        $this->assertDatabaseHas('tasks', [
+            'id'              => $task->id,
+            'organization_id' => $orgFrom->id,
+        ]);
     }
 }
