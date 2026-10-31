@@ -35,10 +35,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Tasks
     Route::get('/orgs/{id}/tasks',        [TaskController::class, 'index']);
     Route::post('/tasks',                  [TaskController::class, 'store']);
+    Route::post('/tasks/{id}/duplicate', [TaskController::class, 'duplicate']);
     Route::patch('/tasks/{id}/status',     [TaskController::class, 'updateStatus']);
     Route::patch('/tasks/{id}/move',       [TaskController::class, 'move']);
 
-    // Archives
+
     // Archives
     Route::get('/archives', [ArchiveController::class, 'index']);
 });
