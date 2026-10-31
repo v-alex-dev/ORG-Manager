@@ -42,16 +42,11 @@ class TaskController extends Controller
      *
      * POST /api/tasks
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreTaskRequest $request): JsonResponse
     {
-        $request->validate([
-            'org_instance_id' => ['required', 'integer', 'exists:org_instances,id'],
-            'service_id'      => ['required', 'integer', 'exists:services,id'],
-            'poj_title'       => ['required', 'string', 'max:255'],
-            'poj_description' => ['nullable', 'string'],
-        ]);
+        $data = $request->validated();
 
-        $org = OrgInstance::findOrFail($request->org_instance_id);
+        $org = OrgInstance::findOrFail($data['org_instance_id']);
 
         $referenceCode =  $this->referenceCodeService->generate(
             $org->type,
