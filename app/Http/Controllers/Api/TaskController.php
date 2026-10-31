@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
+
 use App\Http\Controllers\Controller;
 use App\Models\OrgInstance;
 use App\Models\Task;
 use App\Services\ReferenceCodeService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\MoveTaskRequest;
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\DuplicateTaskRequest;
 class TaskController extends Controller
 {
     public function __construct(
@@ -25,7 +27,7 @@ class TaskController extends Controller
     {
         $org = OrgInstance::findOrFail($id);
 
-        $tasks = Task::with(['service', 'orgInstance'])
+        $tasks = Task::with(['service', 'orgInstance', 'referenceTask:id,reference_code'])
             ->where('organization_id', $id)
             ->orderBy('created_at', 'asc')
             ->get();
@@ -48,28 +50,27 @@ class TaskController extends Controller
 
         $org = OrgInstance::findOrFail($data['org_instance_id']);
 
-        $referenceCode =  $this->referenceCodeService->generate(
+        // The year comes from the meeting date, never from today's date
+        $referenceCode = $this->referenceCodeService->generate(
             $org->type,
-            (int) now()->format('Y')
+            $org->date_meeting->year
         );
 
         $task = Task::create([
             'organization_id' => $org->id,
-            'service_id'      => $request->service_id,
-            'poj_title'       => $request->poj_title,
-            'poj_description' => $request->poj_description,
+            'service_id'      => $data['service_id'],
+            'poj_title'       => $data['poj_title'],
+            'poj_description' => $data['poj_description'] ?? null,
             'status'          => 'TODO',
             'reference_code'  => $referenceCode,
         ]);
 
-        $task->load(['service', 'orgInstance']);
+        $task->load(['service', 'orgInstance', 'referenceTask:id,reference_code']);
 
         return response()->json([
-            'data'=>$task,
+            'data' => $task,
         ], 201);
-
     }
-
     /**
      * Toggle the task status between TODO and DONE.
      *
@@ -96,38 +97,115 @@ class TaskController extends Controller
      * PATCH /api/tasks/{id}/move
      */
 
-    public function move(Request $request,int $id): JsonResponse
+    public function move(MoveTaskRequest $request, int $id): JsonResponse
     {
-        $task = Task::findOrFail($id);
+        $task = Task::with('orgInstance')->findOrFail($id);
 
-        $request->validate([
-            'org_instance_id' => [
-                'required',
-                'integer',
-                'exists:org_instances,id',
-                Rule::notIn([$task->organization_id]),
-            ],
-        ]);
+        $sourceOrg = $task->orgInstance;
+        $targetOrg = OrgInstance::findOrFail($request->validated('org_instance_id'));
 
-        $targetOrg = OrgInstance::findOrFail($request->org_instance_id);
+        if ($sourceOrg->id === $targetOrg->id) {
+            return response()->json([
+                'message' => 'The task is already in this ORG.',
+            ], 422);
+        }
 
-        // Both instances must be of the same type (e.g. CFG -> CFG only)
-        $currentOrg = $task->orgInstance;
+        // A task of an archived ORG is frozen
+        if ($sourceOrg->is_archived) {
+            return response()->json([
+                'message' => 'Cannot move a task from an archived ORG.',
+            ], 422);
+        }
 
-        if($currentOrg->type !== $targetOrg->type ){
+        // An archived ORG cannot receive new tasks
+        if ($targetOrg->is_archived) {
+            return response()->json([
+                'message' => 'Cannot move a task to an archived ORG.',
+            ], 422);
+        }
+
+        // Both instances must be of the same type (CFG to CFG, COMITE to COMITE)
+        if ($sourceOrg->type !== $targetOrg->type) {
             return response()->json([
                 'message' => 'Cannot move a task to a different ORG type.',
             ], 422);
         }
 
-        $task->update([
-            'organization_id' => $targetOrg->id,
-        ]);
+        $task->update(['organization_id' => $targetOrg->id]);
 
-        $task->load(['service', 'orgInstance']);
+        $task->load(['service', 'orgInstance', 'referenceTask:id,reference_code']);
 
         return response()->json([
-            'data'=>$task,
+            'data' => $task,
         ]);
     }
+
+    /**
+     * Duplicate a task into an ORG of a different type (CFG to COMITE or the reverse).
+     * The copy gets its own reference code and keeps a link to the original task.
+     *
+     * POST /api/tasks/{id}/duplicate
+     */
+    public function duplicate(DuplicateTaskRequest $request, int $id): JsonResponse
+    {
+        $original  = Task::with('orgInstance')->findOrFail($id);
+        $sourceOrg = $original->orgInstance;
+        $targetOrg = OrgInstance::findOrFail($request->validated('org_instance_id'));
+
+        // A task can only be duplicated once (this also blocks duplicating a copy)
+        if ($original->has_duplicate) {
+            return response()->json([
+                'message' => 'This task has already been duplicated.',
+            ], 422);
+        }
+
+        if ($sourceOrg->is_archived) {
+            return response()->json([
+                'message' => 'Cannot duplicate a task from an archived ORG.',
+            ], 422);
+        }
+
+        if ($targetOrg->is_archived) {
+            return response()->json([
+                'message' => 'Cannot duplicate a task to an archived ORG.',
+            ], 422);
+        }
+
+        // Duplication is only for a different ORG type
+        if ($sourceOrg->type === $targetOrg->type) {
+            return response()->json([
+                'message' => 'A task can only be duplicated to a different ORG type.',
+            ], 422);
+        }
+
+        // Both writes succeed together or not at all
+        $copy = DB::transaction(function () use ($original, $targetOrg) {
+            $referenceCode = $this->referenceCodeService->generate(
+                $targetOrg->type,
+                $targetOrg->date_meeting->year
+            );
+
+            $copy = Task::create([
+                'organization_id'   => $targetOrg->id,
+                'service_id'        => $original->service_id,
+                'poj_title'         => $original->poj_title,
+                'poj_description'   => $original->poj_description,
+                'status'            => 'TODO',
+                'has_duplicate'     => true,
+                'reference_task_id' => $original->id,
+                'reference_code'    => $referenceCode,
+            ]);
+
+            $original->update(['has_duplicate' => true]);
+
+            return $copy;
+        });
+
+        $copy->load(['service', 'orgInstance', 'referenceTask:id,reference_code']);
+
+        return response()->json([
+            'data' => $copy,
+        ], 201);
+    }
+
 }
