@@ -30,7 +30,7 @@ class ArchiveController extends Controller
             'reference_code' => ['nullable', 'string', 'max:50'],
         ]);
 
-        $tasks = Task::with(['service', 'orgInstance'])
+        $tasks = Task::with(['service', 'orgInstance', 'referenceTask:id,reference_code'])
             ->whereHas('orgInstance', function ($query) use ($request) {
                 $query->where('is_archived', true);
 
