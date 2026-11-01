@@ -87,6 +87,13 @@ class TaskController extends Controller
     {
         $task = Task::findOrFail($id);
 
+        // A task of an archived ORG is frozen
+        if ($task->orgInstance->is_archived) {
+            return response()->json([
+                'message' => 'Cannot change the status of a task in an archived ORG.',
+            ], 422);
+        }
+
         $task->update([
             'status' => $task->status === 'TODO' ? 'DONE' : 'TODO'
         ]);
