@@ -50,12 +50,7 @@ class TaskController extends Controller
 
         $org = OrgInstance::findOrFail($data['org_instance_id']);
 
-        // An archived ORG is frozen, it cannot receive new tasks
-        if ($org->is_archived) {
-            return response()->json([
-                'message' => 'Cannot add a task to an archived ORG.',
-            ], 422);
-        }
+        $org->ensureNotArchived('Cannot add a task to an archived ORG.');
 
         // The year comes from the meeting date, never from today's date
         $referenceCode = $this->referenceCodeService->generate(
@@ -85,18 +80,15 @@ class TaskController extends Controller
      */
     public function updateStatus(int $id): JsonResponse
     {
-        $task = Task::findOrFail($id);
+        $task = Task::with('orgInstance')->findOrFail($id);
 
         // A task of an archived ORG is frozen
-        if ($task->orgInstance->is_archived) {
-            return response()->json([
-                'message' => 'Cannot change the status of a task in an archived ORG.',
-            ], 422);
-        }
+        $task->orgInstance->ensureNotArchived('Cannot change the status of a task in an archived ORG.');
 
         $task->update([
             'status' => $task->status === 'TODO' ? 'DONE' : 'TODO'
         ]);
+        $task->load(['service', 'referenceTask:id,reference_code']);
 
         return response()->json([
             'data' => $task,
@@ -124,19 +116,9 @@ class TaskController extends Controller
             ], 422);
         }
 
-        // A task of an archived ORG is frozen
-        if ($sourceOrg->is_archived) {
-            return response()->json([
-                'message' => 'Cannot move a task from an archived ORG.',
-            ], 422);
-        }
-
-        // An archived ORG cannot receive new tasks
-        if ($targetOrg->is_archived) {
-            return response()->json([
-                'message' => 'Cannot move a task to an archived ORG.',
-            ], 422);
-        }
+        // A task of an archived ORG is frozen, and an archived ORG cannot receive new tasks
+        $sourceOrg->ensureNotArchived('Cannot move a task from an archived ORG.');
+        $targetOrg->ensureNotArchived('Cannot move a task to an archived ORG.');
 
         // Both instances must be of the same type (CFG to CFG, COMITE to COMITE)
         if ($sourceOrg->type !== $targetOrg->type) {
@@ -173,19 +155,9 @@ class TaskController extends Controller
             ], 422);
         }
 
-        if ($sourceOrg->is_archived) {
-            return response()->json([
-                'message' => 'Cannot duplicate a task from an archived ORG.',
-            ], 422);
-        }
+        $sourceOrg->ensureNotArchived('Cannot duplicate a task from an archived ORG.');
+        $targetOrg->ensureNotArchived('Cannot duplicate a task to an archived ORG.');
 
-        if ($targetOrg->is_archived) {
-            return response()->json([
-                'message' => 'Cannot duplicate a task to an archived ORG.',
-            ], 422);
-        }
-
-        // Duplication is only for a different ORG type
         if ($sourceOrg->type === $targetOrg->type) {
             return response()->json([
                 'message' => 'A task can only be duplicated to a different ORG type.',
