@@ -6,6 +6,8 @@ use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Models\Task;
+use Illuminate\Database\QueryException;
 
 class ServiceTest extends TestCase
 {
@@ -101,6 +103,40 @@ class ServiceTest extends TestCase
         ]);
 
         $response->assertStatus(401);
+    }
+
+    // -------------------------------------------------------------------------
+// Database constraints
+// -------------------------------------------------------------------------
+
+    public function test_cannot_delete_a_service_that_has_tasks(): void
+    {
+        $service = Service::factory()->create();
+        Task::factory()->create(['service_id' => $service->id]);
+
+        // The foreign key uses restrictOnDelete, so MySQL refuses the delete
+        $this->expectException(QueryException::class);
+
+        $service->delete();
+    }
+
+    public function test_can_delete_a_service_without_tasks(): void
+    {
+        $service = Service::factory()->create();
+
+        $service->delete();
+
+        $this->assertDatabaseMissing('services', ['id' => $service->id]);
+    }
+
+    public function test_database_rejects_a_duplicate_service_name(): void
+    {
+        Service::create(['name' => 'Logistique']);
+
+        // Bypass the validation to prove the unique index itself works
+        $this->expectException(QueryException::class);
+
+        Service::create(['name' => 'Logistique']);
     }
 
 }

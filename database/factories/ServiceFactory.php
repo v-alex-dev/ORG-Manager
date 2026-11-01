@@ -18,7 +18,7 @@ class ServiceFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name(),
+            'name' => fake()->unique()->company(),
         ];
     }
 }

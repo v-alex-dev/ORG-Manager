@@ -57,7 +57,7 @@ Standard Laravel auth table managed by Sanctum.
 | Column | Type | Notes |
 |---|---|---|
 | id | PK | |
-| name | VARCHAR | Unique department name (e.g. "Logistics") |
+| name | VARCHAR | Unique department name, enforced by a unique index at database level |
 | timestamps | | |
 
 ### `org_instances`
@@ -75,7 +75,7 @@ Standard Laravel auth table managed by Sanctum.
 |---|---|---|
 | id | PK | |
 | organization_id | FK | References `org_instances.id`, cascade delete |
-| service_id | FK | References `services.id` |
+| service_id | FK | References `services.id`, restrict on delete (a service with tasks cannot be deleted) |
 | poj_title | VARCHAR(255) | Agenda item title, limited to 100 characters by validation |
 | poj_description | TEXT | Nullable, limited to 500 characters by validation |
 | status | ENUM | `TODO` or `DONE`, default `TODO` |
