@@ -13,7 +13,7 @@ class Service extends Model
         'name',
     ];
 
-    public function tasks(): hasMany{
+    public function tasks(): HasMany{
         return $this->hasMany(Task::class);
     }
 }
