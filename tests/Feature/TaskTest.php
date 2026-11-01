@@ -477,4 +477,73 @@ class TaskTest extends TestCase
             'organization_id' => $orgFrom->id,
         ]);
     }
+
+    // -------------------------------------------------------------------------
+    // Archived ORG protection (POST /api/tasks and PATCH /api/tasks/{id}/status)
+    // -------------------------------------------------------------------------
+
+    public function test_cannot_create_a_task_in_an_archived_org(): void
+    {
+        $user    = User::factory()->create();
+        $org     = OrgInstance::factory()->cfg()->archived()->create();
+        $service = Service::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/tasks', [
+                'org_instance_id' => $org->id,
+                'service_id'      => $service->id,
+                'poj_title'       => 'Should be refused',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('message', 'Cannot add a task to an archived ORG.');
+
+        $this->assertDatabaseCount('tasks', 0);
+    }
+
+    public function test_cannot_change_status_of_a_task_in_an_archived_org(): void
+    {
+        $user = User::factory()->create();
+        $org  = OrgInstance::factory()->archived()->create();
+        $task = Task::factory()->create([
+            'organization_id' => $org->id,
+            'status'          => 'TODO',
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->patchJson("/api/tasks/{$task->id}/status");
+
+        $response->assertStatus(422)
+            ->assertJsonPath('message', 'Cannot change the status of a task in an archived ORG.');
+
+        $this->assertDatabaseHas('tasks', [
+            'id'     => $task->id,
+            'status' => 'TODO',
+        ]);
+    }
+
+    public function test_status_response_includes_service_and_reference_task(): void
+    {
+        $user    = User::factory()->create();
+        $service = Service::factory()->create();
+        $task    = Task::factory()->create(['service_id' => $service->id]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->patchJson("/api/tasks/{$task->id}/status");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.service.id', $service->id)
+            ->assertJsonPath('data.org_instance.id', $task->organization_id)
+            ->assertJsonPath('data.reference_task', null);
+    }
+
+    public function test_non_numeric_org_id_returns_404(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/orgs/abc/tasks');
+
+        $response->assertStatus(404);
+    }
 }
