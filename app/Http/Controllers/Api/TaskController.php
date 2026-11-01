@@ -50,6 +50,13 @@ class TaskController extends Controller
 
         $org = OrgInstance::findOrFail($data['org_instance_id']);
 
+        // An archived ORG is frozen, it cannot receive new tasks
+        if ($org->is_archived) {
+            return response()->json([
+                'message' => 'Cannot add a task to an archived ORG.',
+            ], 422);
+        }
+
         // The year comes from the meeting date, never from today's date
         $referenceCode = $this->referenceCodeService->generate(
             $org->type,
