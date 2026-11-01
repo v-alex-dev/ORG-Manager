@@ -6,8 +6,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\OrgInstance;
+use App\Models\Task;
 use App\Models\User;
-
+use App\Exceptions\ArchivedOrgException;
 class OrgInstanceTest extends TestCase
 {
     use RefreshDatabase;
@@ -239,5 +240,35 @@ class OrgInstanceTest extends TestCase
             ]);
 
         $response->assertStatus(201);
+    }
+
+    // -------------------------------------------------------------------------
+// Relations
+// -------------------------------------------------------------------------
+
+    public function test_org_instance_tasks_relation_returns_the_right_tasks(): void
+    {
+        $org      = OrgInstance::factory()->create();
+        $otherOrg = OrgInstance::factory()->create();
+
+        Task::factory()->count(2)->create(['organization_id' => $org->id]);
+        Task::factory()->count(3)->create(['organization_id' => $otherOrg->id]);
+
+        $this->assertCount(2, $org->tasks);
+        $this->assertTrue($org->tasks->every(fn ($task) => $task->organization_id === $org->id));
+    }
+
+    public function test_ensure_not_archived_throws_only_for_archived_orgs(): void
+    {
+        $active   = OrgInstance::factory()->create();
+        $archived = OrgInstance::factory()->archived()->create();
+
+        // No exception for an active ORG
+        $active->ensureNotArchived('Should not be thrown.');
+
+        $this->expectException(ArchivedOrgException::class);
+        $this->expectExceptionMessage('Frozen ORG.');
+
+        $archived->ensureNotArchived('Frozen ORG.');
     }
 }
