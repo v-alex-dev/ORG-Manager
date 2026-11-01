@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use App\Exceptions\ArchivedOrgException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -48,10 +49,9 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         // 422 - Validation errors
-        $exceptions->render(function (ValidationException $e, Request $request) {
+        $exceptions->render(function (ArchivedOrgException $e, Request $request) {
             return response()->json([
-                'message' => 'Validation failed.',
-                'errors'  => $e->errors(),
+                'message' => $e->getMessage(),
             ], 422);
         });
     })->create();
