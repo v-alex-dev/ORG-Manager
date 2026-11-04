@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateTaskStatusRequest extends FormRequest
 {
@@ -12,17 +13,14 @@ class UpdateTaskStatusRequest extends FormRequest
     }
 
     /**
-     * Only these three fields can be edited.
-     * reference_code, status and organization_id are never accepted here.
+     * The status is optional: without it, the endpoint toggles the current value.
      *
-     * @return array<string, array<int, string>>
+     * @return array<string, array<int, mixed>>
      */
     public function rules(): array
     {
         return [
-            'service_id'      => ['required', 'integer', 'exists:services,id'],
-            'poj_title'       => ['required', 'string', 'max:100'],
-            'poj_description' => ['nullable', 'string', 'max:500'],
+            'status' => ['nullable', Rule::in(['TODO', 'DONE'])],
         ];
     }
 }

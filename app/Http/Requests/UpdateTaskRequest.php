@@ -2,28 +2,27 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTaskRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Only these three fields can be edited.
+     * reference_code, status and organization_id are never accepted here.
      *
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * @return array<string, array<int, string>>
      */
     public function rules(): array
     {
         return [
-            //
+            'service_id'      => ['required', 'integer', 'exists:services,id'],
+            'poj_title'       => ['required', 'string', 'max:100'],
+            'poj_description' => ['nullable', 'string', 'max:500'],
         ];
     }
 }
