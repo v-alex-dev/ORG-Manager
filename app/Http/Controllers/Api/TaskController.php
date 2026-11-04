@@ -9,9 +9,13 @@ use App\Models\Task;
 use App\Services\ReferenceCodeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Response;
 use App\Http\Requests\MoveTaskRequest;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\DuplicateTaskRequest;
+use App\Http\Requests\UpdateTaskStatusRequest;
+use App\Http\Requests\UpdateTaskRequest;
+
 class TaskController extends Controller
 {
     public function __construct(
@@ -73,26 +77,34 @@ class TaskController extends Controller
             'data' => $task,
         ], 201);
     }
+
     /**
-     * Toggle the task status between TODO and DONE.
+     * Change the task status.
+     *
+     * Without a body, the status is toggled between TODO and DONE.
+     * With a "status" field, the given value is applied, so a double tap
+     * or a network retry always gives the same result (idempotent).
      *
      * PATCH /api/tasks/{id}/status
      */
-    public function updateStatus(int $id): JsonResponse
+    public function updateStatus(UpdateTaskStatusRequest $request, int $id): JsonResponse
     {
         $task = Task::with('orgInstance')->findOrFail($id);
 
         // A task of an archived ORG is frozen
         $task->orgInstance->ensureNotArchived('Cannot change the status of a task in an archived ORG.');
 
-        $task->update([
-            'status' => $task->status === 'TODO' ? 'DONE' : 'TODO'
-        ]);
+        // Use the requested status, or toggle when none is given
+        $newStatus = $request->validated('status')
+            ?? ($task->status === 'TODO' ? 'DONE' : 'TODO');
+
+        $task->update(['status' => $newStatus]);
+
         $task->load(['service', 'referenceTask:id,reference_code']);
 
         return response()->json([
             'data' => $task,
-        ], 200);
+        ]);
     }
 
     /**
@@ -193,5 +205,56 @@ class TaskController extends Controller
             'data' => $copy,
         ], 201);
     }
+
+    /**
+     * Edit the title, the description and the service of a task.
+     * The reference_code and the status are never changed here.
+     *
+     * PUT /api/tasks/{id}
+     */
+    public function update(UpdateTaskRequest $request, int $id): JsonResponse
+    {
+        $task = Task::with('orgInstance')->findOrFail($id);
+
+        $task->orgInstance->ensureNotArchived('Cannot update a task in an archived ORG.');
+
+        $task->update([
+            'service_id'      => $request->validated('service_id'),
+            'poj_title'       => $request->validated('poj_title'),
+            'poj_description' => $request->validated('poj_description'),
+        ]);
+
+        $task->load(['service', 'orgInstance', 'referenceTask:id,reference_code']);
+
+        return response()->json([
+            'data' => $task,
+        ]);
+    }
+
+    /**
+     * Permanently delete a task.
+     * If the task is a copy, its original can be duplicated again.
+     *
+     * DELETE /api/tasks/{id}
+     */
+    public function destroy(int $id): Response
+    {
+        $task = Task::with('orgInstance')->findOrFail($id);
+
+        $task->orgInstance->ensureNotArchived('Cannot delete a task from an archived ORG.');
+
+        // Both writes succeed together or not at all
+        DB::transaction(function () use ($task) {
+            // Only a copy has a reference_task_id: free its original
+            if ($task->reference_task_id !== null) {
+                Task::whereKey($task->reference_task_id)->update(['has_duplicate' => false]);
+            }
+
+            $task->delete();
+        });
+
+        return response()->noContent();
+    }
+
 
 }
