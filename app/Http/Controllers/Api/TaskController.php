@@ -15,6 +15,8 @@ use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\DuplicateTaskRequest;
 use App\Http\Requests\UpdateTaskStatusRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Requests\BulkDoneTasksRequest;
+use App\Http\Requests\BulkMoveTasksRequest;
 
 class TaskController extends Controller
 {
@@ -256,5 +258,77 @@ class TaskController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * Mark several tasks as DONE at once.
+     * Every task is checked first, so nothing changes if one of them is frozen.
+     * Tasks that are already DONE stay DONE (no toggle).
+     *
+     * PATCH /api/tasks/bulk-done
+     */
+    public function bulkDone(BulkDoneTasksRequest $request): JsonResponse
+    {
+        $ids = $request->validated('task_ids');
 
+        $tasks = Task::with('orgInstance')->whereIn('id', $ids)->get();
+
+        foreach ($tasks as $task) {
+            $task->orgInstance->ensureNotArchived('Cannot change the status of a task in an archived ORG.');
+        }
+
+        // One single query: it either works for all tasks or for none
+        Task::whereIn('id', $ids)->update(['status' => 'DONE']);
+
+        $tasks = Task::with(['service', 'orgInstance', 'referenceTask:id,reference_code'])
+            ->whereIn('id', $ids)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return response()->json([
+            'data' => $tasks,
+        ]);
+    }
+
+    /**
+     * Move several tasks to another ORG instance (same type, any date).
+     * The reference codes and the statuses are preserved.
+     *
+     * PATCH /api/tasks/bulk-move
+     */
+    public function bulkMove(BulkMoveTasksRequest $request): JsonResponse
+    {
+        $ids       = $request->validated('task_ids');
+        $targetOrg = OrgInstance::findOrFail($request->validated('org_instance_id'));
+
+        $targetOrg->ensureNotArchived('Cannot move a task to an archived ORG.');
+
+        $tasks = Task::with('orgInstance')->whereIn('id', $ids)->get();
+
+        // Check every task before writing anything
+        foreach ($tasks as $task) {
+            if ($task->organization_id === $targetOrg->id) {
+                return response()->json([
+                    'message' => 'The task is already in this ORG.',
+                ], 422);
+            }
+
+            $task->orgInstance->ensureNotArchived('Cannot move a task from an archived ORG.');
+
+            if ($task->orgInstance->type !== $targetOrg->type) {
+                return response()->json([
+                    'message' => 'Cannot move a task to a different ORG type.',
+                ], 422);
+            }
+        }
+
+        Task::whereIn('id', $ids)->update(['organization_id' => $targetOrg->id]);
+
+        $tasks = Task::with(['service', 'orgInstance', 'referenceTask:id,reference_code'])
+            ->whereIn('id', $ids)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return response()->json([
+            'data' => $tasks,
+        ]);
+    }
 }
