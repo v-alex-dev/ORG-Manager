@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\OrgInstance;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class OrgInstanceController extends Controller
 {
@@ -72,9 +73,19 @@ class OrgInstanceController extends Controller
     {
         $org = OrgInstance::findOrFail($id);
 
-        if($org->is_archived) {
+        if ($org->is_archived) {
             return response()->json([
                 'message' => 'This ORG is already archived.',
+            ], 422);
+        }
+
+        // Archiving is irreversible: every task must be finished first
+        $pending = $org->tasks()->where('status', 'TODO')->count();
+
+        if ($pending > 0) {
+            return response()->json([
+                'message' => "Cannot archive an ORG that still has {$pending} pending "
+                    . Str::plural('task', $pending) . '.',
             ], 422);
         }
 
@@ -83,6 +94,5 @@ class OrgInstanceController extends Controller
         return response()->json([
             'data' => $org,
         ]);
-
     }
 }
