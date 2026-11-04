@@ -39,6 +39,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tasks/{id}/duplicate', [TaskController::class, 'duplicate']);
     Route::patch('/tasks/{id}/status',     [TaskController::class, 'updateStatus']);
     Route::patch('/tasks/{id}/move',       [TaskController::class, 'move']);
+    Route::put('/tasks/{id}',    [TaskController::class, 'update']);
+    Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
 
 
     // Archives
