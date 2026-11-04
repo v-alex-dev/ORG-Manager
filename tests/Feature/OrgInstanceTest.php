@@ -271,4 +271,46 @@ class OrgInstanceTest extends TestCase
 
         $archived->ensureNotArchived('Frozen ORG.');
     }
+    public function test_cannot_archive_an_org_with_pending_tasks(): void
+    {
+        $user = User::factory()->create();
+        $org  = OrgInstance::factory()->create();
+
+        Task::factory()->count(3)->create(['organization_id' => $org->id]);
+        Task::factory()->done()->create(['organization_id' => $org->id]);
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson("/api/orgs/{$org->id}/archive")
+            ->assertStatus(422)
+            ->assertJsonPath('message', 'Cannot archive an ORG that still has 3 pending tasks.');
+
+        $this->assertDatabaseHas('org_instances', ['id' => $org->id, 'is_archived' => false]);
+    }
+
+    public function test_pending_message_uses_singular_for_one_task(): void
+    {
+        $user = User::factory()->create();
+        $org  = OrgInstance::factory()->create();
+
+        Task::factory()->create(['organization_id' => $org->id]);
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson("/api/orgs/{$org->id}/archive")
+            ->assertStatus(422)
+            ->assertJsonPath('message', 'Cannot archive an ORG that still has 1 pending task.');
+    }
+
+    public function test_can_archive_an_org_when_all_tasks_are_done(): void
+    {
+        $user = User::factory()->create();
+        $org  = OrgInstance::factory()->create();
+
+        Task::factory()->done()->count(2)->create(['organization_id' => $org->id]);
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson("/api/orgs/{$org->id}/archive")
+            ->assertStatus(200);
+
+        $this->assertDatabaseHas('org_instances', ['id' => $org->id, 'is_archived' => true]);
+    }
 }
