@@ -546,4 +546,250 @@ class TaskTest extends TestCase
 
         $response->assertStatus(404);
     }
+    public function test_can_force_status_to_done(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->create(['status' => 'TODO']);
+
+        $this->actingAs($user, 'sanctum')
+            ->patchJson("/api/tasks/{$task->id}/status", ['status' => 'DONE'])
+            ->assertStatus(200)
+            ->assertJsonPath('data.status', 'DONE');
+    }
+
+    public function test_forcing_the_same_status_twice_is_idempotent(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->create(['status' => 'TODO']);
+
+        // Simulates a double tap: the status must stay DONE
+        for ($i = 0; $i < 2; $i++) {
+            $this->actingAs($user, 'sanctum')
+                ->patchJson("/api/tasks/{$task->id}/status", ['status' => 'DONE'])
+                ->assertStatus(200)
+                ->assertJsonPath('data.status', 'DONE');
+        }
+
+        $this->assertDatabaseHas('tasks', ['id' => $task->id, 'status' => 'DONE']);
+    }
+
+    public function test_can_force_status_back_to_todo(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->done()->create();
+
+        $this->actingAs($user, 'sanctum')
+            ->patchJson("/api/tasks/{$task->id}/status", ['status' => 'TODO'])
+            ->assertStatus(200)
+            ->assertJsonPath('data.status', 'TODO');
+    }
+
+    public function test_status_must_be_a_valid_value(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->create();
+
+        $this->actingAs($user, 'sanctum')
+            ->patchJson("/api/tasks/{$task->id}/status", ['status' => 'INVALID'])
+            ->assertStatus(422)
+            ->assertJsonStructure(['message', 'errors' => ['status']]);
+    }
+
+    // -------------------------------------------------------------------------
+// PUT /api/tasks/{id}
+// -------------------------------------------------------------------------
+
+    public function test_can_update_a_task(): void
+    {
+        $user     = User::factory()->create();
+        $service  = Service::factory()->create();
+        $service2 = Service::factory()->create();
+        $task     = Task::factory()->create([
+            'service_id'     => $service->id,
+            'reference_code' => 'CFG-2026-005',
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->putJson("/api/tasks/{$task->id}", [
+                'service_id'      => $service2->id,
+                'poj_title'       => 'Corrected title',
+                'poj_description' => 'Corrected description',
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.poj_title', 'Corrected title')
+            ->assertJsonPath('data.poj_description', 'Corrected description')
+            ->assertJsonPath('data.service.id', $service2->id)
+            ->assertJsonPath('data.reference_code', 'CFG-2026-005');
+    }
+
+    public function test_update_ignores_reference_code_and_status(): void
+    {
+        $user    = User::factory()->create();
+        $service = Service::factory()->create();
+        $task    = Task::factory()->create([
+            'status'         => 'TODO',
+            'reference_code' => 'CFG-2026-005',
+        ]);
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson("/api/tasks/{$task->id}", [
+                'service_id'     => $service->id,
+                'poj_title'      => 'New title',
+                'reference_code' => 'HACKED-0000-000',
+                'status'         => 'DONE',
+            ])
+            ->assertStatus(200);
+
+        $this->assertDatabaseHas('tasks', [
+            'id'             => $task->id,
+            'reference_code' => 'CFG-2026-005',
+            'status'         => 'TODO',
+        ]);
+    }
+
+    public function test_cannot_update_a_task_in_an_archived_org(): void
+    {
+        $user    = User::factory()->create();
+        $service = Service::factory()->create();
+        $org     = OrgInstance::factory()->archived()->create();
+        $task    = Task::factory()->create([
+            'organization_id' => $org->id,
+            'poj_title'       => 'Original',
+        ]);
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson("/api/tasks/{$task->id}", [
+                'service_id' => $service->id,
+                'poj_title'  => 'Changed',
+            ])
+            ->assertStatus(422)
+            ->assertJsonPath('message', 'Cannot update a task in an archived ORG.');
+
+        $this->assertDatabaseHas('tasks', ['id' => $task->id, 'poj_title' => 'Original']);
+    }
+
+    public function test_update_validates_fields_and_length_limits(): void
+    {
+        $user    = User::factory()->create();
+        $service = Service::factory()->create();
+        $task    = Task::factory()->create();
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson("/api/tasks/{$task->id}", [])
+            ->assertStatus(422)
+            ->assertJsonStructure(['message', 'errors' => ['service_id', 'poj_title']]);
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson("/api/tasks/{$task->id}", [
+                'service_id' => $service->id,
+                'poj_title'  => str_repeat('a', 101),
+            ])
+            ->assertStatus(422)
+            ->assertJsonStructure(['message', 'errors' => ['poj_title']]);
+    }
+
+    public function test_returns_404_when_updating_nonexistent_task(): void
+    {
+        $user    = User::factory()->create();
+        $service = Service::factory()->create();
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson('/api/tasks/999', ['service_id' => $service->id, 'poj_title' => 'x'])
+            ->assertStatus(404);
+    }
+
+    public function test_unauthenticated_user_cannot_update_task(): void
+    {
+        $task = Task::factory()->create();
+
+        $this->putJson("/api/tasks/{$task->id}", [])->assertStatus(401);
+    }
+
+// -------------------------------------------------------------------------
+// DELETE /api/tasks/{id}
+// -------------------------------------------------------------------------
+
+    public function test_can_delete_a_task(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->create();
+
+        $this->actingAs($user, 'sanctum')
+            ->deleteJson("/api/tasks/{$task->id}")
+            ->assertStatus(204);
+
+        $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
+    }
+
+    public function test_cannot_delete_a_task_in_an_archived_org(): void
+    {
+        $user = User::factory()->create();
+        $org  = OrgInstance::factory()->archived()->create();
+        $task = Task::factory()->create(['organization_id' => $org->id]);
+
+        $this->actingAs($user, 'sanctum')
+            ->deleteJson("/api/tasks/{$task->id}")
+            ->assertStatus(422)
+            ->assertJsonPath('message', 'Cannot delete a task from an archived ORG.');
+
+        $this->assertDatabaseHas('tasks', ['id' => $task->id]);
+    }
+
+    public function test_deleting_a_copy_frees_the_original(): void
+    {
+        $user   = User::factory()->create();
+        $cfg    = OrgInstance::factory()->cfg()->create();
+        $comite = OrgInstance::factory()->comite()->create();
+        $task   = Task::factory()->create(['organization_id' => $cfg->id]);
+
+        $copyId = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/tasks/{$task->id}/duplicate", ['org_instance_id' => $comite->id])
+            ->json('data.id');
+
+        $this->actingAs($user, 'sanctum')
+            ->deleteJson("/api/tasks/{$copyId}")
+            ->assertStatus(204);
+
+        $this->assertDatabaseHas('tasks', ['id' => $task->id, 'has_duplicate' => false]);
+        $this->assertDatabaseMissing('tasks', ['id' => $copyId]);
+    }
+
+    public function test_deleting_an_original_keeps_the_copy(): void
+    {
+        $user   = User::factory()->create();
+        $cfg    = OrgInstance::factory()->cfg()->create();
+        $comite = OrgInstance::factory()->comite()->create();
+        $task   = Task::factory()->create(['organization_id' => $cfg->id]);
+
+        $copyId = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/tasks/{$task->id}/duplicate", ['org_instance_id' => $comite->id])
+            ->json('data.id');
+
+        $this->actingAs($user, 'sanctum')
+            ->deleteJson("/api/tasks/{$task->id}")
+            ->assertStatus(204);
+
+        $this->assertDatabaseHas('tasks', [
+            'id'                => $copyId,
+            'reference_task_id' => null,
+            'has_duplicate'     => true,
+        ]);
+    }
+
+    public function test_returns_404_when_deleting_nonexistent_task(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user, 'sanctum')
+            ->deleteJson('/api/tasks/999')
+            ->assertStatus(404);
+    }
+
+    public function test_unauthenticated_user_cannot_delete_task(): void
+    {
+        $task = Task::factory()->create();
+
+        $this->deleteJson("/api/tasks/{$task->id}")->assertStatus(401);
+    }
 }
